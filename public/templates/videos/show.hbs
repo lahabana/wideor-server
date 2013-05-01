@@ -1,1 +1,22 @@
-<div>{{id}}</div>
+<div class="video">
+    <div class="id">{{id}}</div>
+    <div class="state">{{state}}</div>
+    <div class="duration">{{data.duration}}</div>
+    <div class="format">{{data.format}}</div>
+    <ul class="files">
+        {{#each data.files}}
+        <li>
+            <span class="path">{{this.path}}</span>
+            :
+            <span>{{this.format}}</span>
+        </li>
+        {{/each}}
+    </ul>
+    {{#if result.url}}
+    <div class="result">
+        <a href="{{result.url}}">
+            {{result.url}}
+        </a>
+    </div>
+    {{/if}}
+</div>

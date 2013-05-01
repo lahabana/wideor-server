@@ -8,8 +8,14 @@ var createError = function(res, code, message) {
 
 var supportedFormat = {
   "jpg": "jpg",
-  "jpeg": "jpeg",
+  "jpeg": "jpg",
   "png": "png"
+};
+
+var reUrl = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/;
+
+var isNumber = function(number) {
+  return typeof(+number) === "number" && isFinite(+number) && !isNaN(+number);
 };
 
 exports.supportedFormat = supportedFormat;
@@ -41,11 +47,10 @@ var checkAndCreateContent = function(files, duration, format) {
   if (!files || files.length === 0) {
     return {err: true, message: "You need to specify more than one file"};
   } else {
-
     for (var i = 0; i < files.length; i++) {
       files[i].format = typeof(files[i].format) === "string" ?
                           supportedFormat[files[i].format.toLowerCase()] : null;
-      if (!files[i].path || !files[i].format) {
+      if (!reUrl.test(files[i].path) || !files[i].format) {
         return {err: true, message: "Each file needs a path and a supported format. This is" +
                                     "not the case for file:" + i + "=" +
                                     JSON.stringify(files[i])};
@@ -54,7 +59,7 @@ var checkAndCreateContent = function(files, duration, format) {
     content.files = files;
   }
   if (duration) {
-    if (typeof(duration) !== "number" || duration < 0) {
+    if (!isNumber(duration) || duration <= 0) {
       return {err: true, message: "The duration if specified needs to be a number"};
     } else {
       content.duration = duration;
@@ -63,12 +68,12 @@ var checkAndCreateContent = function(files, duration, format) {
     content.duration = 1;
   }
   if (format) {
-    format = /[0-9]+(x|X)[0-9]+/.test(format) ? format.toLowerCase() : "";
-    var splitted = format.split('x');
-    if (splitted.length !== 2 || splitted[0] <= 0 || splitted[1] <= 0) {
+    var format = (format + '').toLowerCase().split('x');
+    if (format.length !== 2 || !isNumber(format[0]) || !isNumber(format[1]) ||
+            (+format[0]) <= 0 || (+format[1]) <= 0) {
       return {err: true, message: "The format must be a string of type [width]x[height]"};
     }
-    content.format = format;
+    content.format = format[0] + 'x' + format[1];
   } else {
     content.format = "640x480";
   }
@@ -76,7 +81,8 @@ var checkAndCreateContent = function(files, duration, format) {
 }
 
 exports.create = function(req, res) {
-  var content = checkAndCreateContent(req.body.files, req.body.duration, req.body.format);
+  var body = req.body.data || req.body;
+  var content = checkAndCreateContent(body.files, body.duration, body.format);
   if (content.err) {
     return createError(res, 400, content.message);
   }

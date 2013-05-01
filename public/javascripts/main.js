@@ -28,22 +28,27 @@ require(['jquery', 'Backbone', 'videos'], function($, Backbone, Videos) {
   var AppRouter = Backbone.Router.extend({
     routes: {
       "": "home",
+      "videos/add": "addVideo",
       "videos/:id": "showVideo"
     }
   });
 
   var app_router = new AppRouter();
-  app_router.on('route:showVideo', function(id) {
-    var video = new Videos.Model({id:id});
-    video.fetch({
-      success: function (video) {
-        var video = new Videos.views.normal({el: $("#content"), model: video});
-      }
+  app_router.on('route:home', function(id) {
+    var videoView = new Videos.views.form({el: $("#content")});
+    videoView.on('postVideo', function(id) {
+      app_router.navigate('videos/' + id, {trigger: true});
     });
   });
 
-  app_router.on('route:home', function(id) {
-    el: $('#content').html("hoy");
+  app_router.on('route:showVideo', function(id) {
+    var video = new Videos.Model({id:id});
+    var videoView = new Videos.views.normal({el: $("#content"), model: video});
+    video.fetch();
+  });
+
+  app_router.on('route:addVideo', function(id) {
+    var videoView = new Videos.views.form({el: $("#content")});
   });
 
   $('.bblink').click(function(e) {
