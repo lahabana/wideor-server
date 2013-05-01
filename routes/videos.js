@@ -1,5 +1,10 @@
+var queue = null;
 
-exports.show = function(req, res){
+exports.setQueue = function(RedisQueue) {
+  queue = RedisQueue;
+}
+
+exports.show = function(req, res) {
   res.render('show video', { title: 'Express' });
 };
 

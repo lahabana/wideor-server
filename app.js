@@ -7,10 +7,18 @@ var express = require('express')
   , routes = require('./routes')
   , http = require('http')
   , path = require('path');
+var redis = require('redis');
+var jobberTrack = require('jobber-track');
 
 var app = express();
 
 app.configure(function(){
+  var client = redis.createClient(process.env.WIDEOR_REDIS_PORT || 6379,
+                                  process.env.WIDEOR_REDIS_HOST || "127.0.0.1",
+                                  "");
+  var queue = new jobberTrack.Queue(client, process.env.WIDEOR_QUEUE_NAME);
+  app.set('redis-client', client);
+  app.set('queue', queue);
   app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
@@ -35,6 +43,14 @@ app.get('/videos/:id', routes.index);
 app.get('/api/videos/:id', routes.videos.show);
 app.post('/api/videos', routes.videos.create);
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
+app.get('redis-client').on('ready', function() {
+  routes.videos.setQueue(app.get('queue'));
+  console.log("Connected to redis client");
+  http.createServer(app).listen(app.get('port'), function(){
+    console.log("Express server listening on port " + app.get('port'));
+  });
+});
+
+app.get('redis-client').on('error', function() {
+  console.error("Could not connect to redis server");
 });
