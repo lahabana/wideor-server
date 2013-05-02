@@ -1,5 +1,10 @@
 //@import "bootstrap/bootstrap.less";
 
+.inline-block(@align) {
+    display: inline-block;
+    vertical-align: @align;
+}
+
 html, body {
     height: 100%;
 }
@@ -10,22 +15,72 @@ html, body {
     min-height: 100%;
 }
 
+.label {
+    max-width: 80px;
+}
+
+.video {
+    position: relative;
+    .header {
+        margin-bottom: 19px;
+        text-align: justify;
+        .info {
+            .inline-block(bottom);
+        }
+        .state {
+            .inline-block(top);
+            overflow: hidden;
+        }
+    }
+    .header:after{
+      content: "";
+      width: 100%;
+      display: inline-block;
+    }
+}
+
 #footer, #push {
     height: 60px;
 }
 
 #footer {
     background-color: #080808;
+    .container {
+        max-width: 680px;
+        width: auto;
+        .credit {
+            margin: 20px 0;
+        }
+    }
 }
 
-#footer .container {
-    max-width: 680px;
-    width: auto;
-}
-#footer .container .credit {
-    margin: 20px 0;
+form {
+    .files li {
+        padding-top: 5px;
+    }
 }
 
-.files li {
-    padding-top: 5px;
+.carousel-inner > .item > img, .carousel-inner > .item > a > img {
+    display: block;
+    line-height: 1;
+    margin: auto;
+}
+
+.carousel {
+    background-color: rgba(0, 0, 0, 0.8);
+    .carousel-nb {
+        background: none repeat scroll 0 0 #080808;
+        color: #FFFFFF;
+        right: 0;
+        opacity: 0.5;
+        position: absolute;
+        text-align: center;
+        padding: 5px;
+    }
+
+    .carousel-control {
+        line-height: 26px;
+        border: 0;
+        border-radius: 0;
+    }
 }

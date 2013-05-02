@@ -1,0 +1,24 @@
+<div class="video well">
+    <div class="header">
+        <div class="info">
+            <h2 class="id">{{id}}</h2>
+            <div class="duration">Duration: {{data.duration}} / Format: {{data.format}}</div>
+        </div>
+        {{renderState state}}
+    </div>
+    {{#bootstrapCarousel data.files}}
+        <img alt="" src="{{path}}">
+        <div class="carousel-caption">
+          <h4>{{path}}</h4>
+          <p> {{format}} </p>
+        </div>
+    {{/bootstrapCarousel}}
+
+    {{#if result.url}}
+    <div class="result">
+        <a href="{{result.url}}">
+            Download your video
+        </a>
+    </div>
+    {{/if}}
+</div>
