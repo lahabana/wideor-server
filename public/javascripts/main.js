@@ -5,7 +5,7 @@ require.config({
     "underscore": "lib/underscore",
     "hbs": "lib/hbs",
     "jquery": "lib/jquery",
-    "bootstrap": "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"
+    "bootstrap": "lib/bootstrap.min.js"
   },
   hbs: {
     disableI18n: true
