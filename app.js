@@ -37,7 +37,9 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
-app.get('/videos/:id', routes.index);
+app.get('/about', routes.about);
+app.get('/videos/:id', routes.empty);
+app.get('/videos/add', routes.empty);
 
 app.get('/api/videos/:id', routes.videos.show);
 app.post('/api/videos', routes.videos.create);

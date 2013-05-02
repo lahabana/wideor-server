@@ -30,15 +30,23 @@ require.config({
 
 require(['jquery', 'Backbone', 'videos'], function($, Backbone, Videos) {
 
+  var changeTitle = function(newTitle) {
+    var title = document.title.split('|');
+    title[title.length - 1] = ' ' + newTitle;
+    document.title = title.join('|');
+  }
+
   var AppRouter = Backbone.Router.extend({
     routes: {
       "": "home",
+      "videos/add": "showVideoForm",
       "videos/:id": "showVideo"
     }
   });
 
   var app_router = new AppRouter();
-  app_router.on('route:home', function(id) {
+  app_router.on('route:showVideoForm', function(id) {
+    changeTitle("add video");
     var videoView = new Videos.views.form({el: $("#content")});
     videoView.on('postVideo', function(id) {
       app_router.navigate('videos/' + id, {trigger: true});
@@ -47,6 +55,7 @@ require(['jquery', 'Backbone', 'videos'], function($, Backbone, Videos) {
 
   app_router.on('route:showVideo', function(id) {
     var video = new Videos.Model({id:id});
+    changeTitle("video " + id);
     var videoView = new Videos.views.normal({el: $("#content"), model: video});
     video.fetch();
   });
