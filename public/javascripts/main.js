@@ -28,7 +28,6 @@ require(['jquery', 'Backbone', 'videos'], function($, Backbone, Videos) {
   var AppRouter = Backbone.Router.extend({
     routes: {
       "": "home",
-      "videos/add": "addVideo",
       "videos/:id": "showVideo"
     }
   });
@@ -45,10 +44,6 @@ require(['jquery', 'Backbone', 'videos'], function($, Backbone, Videos) {
     var video = new Videos.Model({id:id});
     var videoView = new Videos.views.normal({el: $("#content"), model: video});
     video.fetch();
-  });
-
-  app_router.on('route:addVideo', function(id) {
-    var videoView = new Videos.views.form({el: $("#content")});
   });
 
   $('.bblink').click(function(e) {

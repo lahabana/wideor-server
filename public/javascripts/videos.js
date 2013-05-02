@@ -116,7 +116,7 @@ define(deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
           that.trigger('postVideo', data.id);
         },
         error: function(e, data) {
-          console.log(data.responseJSON.message);
+          $('.error', this.$el).html("Server error please try again later");
         }
       });
     }
