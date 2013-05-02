@@ -18,21 +18,26 @@ app.configure(function(){
   var queue = new jobberTrack.Queue(client, process.env.WIDEOR_QUEUE_NAME);
   app.set('redis-client', client);
   app.set('queue', queue);
+  app.set('version', process.env.WIDEOR_VERSION);
   app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
-  app.use(express.favicon());
+  app.use(express.favicon(__dirname + "/public/favicon.ico", {maxAge: 2592000000}));
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(express.cookieParser('your secret here'));
   app.use(express.session());
+  app.use(function(req, res, next) {
+    res.locals.app = app;
+    next();
+  });
   app.use(app.router);
-  app.use(require('less-middleware')({ src: __dirname + '/public' }));
-  app.use(express.static(path.join(__dirname, 'public')));
 });
 
 app.configure('development', function(){
+  app.use(require('less-middleware')({ src: __dirname + '/public' }));
+  app.use(express.static(path.join(__dirname, 'public')));
   app.use(express.errorHandler());
 });
 

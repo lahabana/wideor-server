@@ -2,7 +2,11 @@ doctype 5
 html
   head
     title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    if app.version
+        link(rel='stylesheet', href='//:wideor-static.s3.amazonaws.com/#{app.version}_style.css')
+    else
+        link(rel='stylesheet', href='/stylesheets/style.css')
+
   body
     #wrap
         #header.navbar
@@ -30,4 +34,8 @@ html
                 | <a href="http://github.com/lahabana/wideor-site">github</a>
                 | / Bootstrap theme forked from <a href="http://thomaspark.me/">Thomas park</a>'s
                 |  <a href="http://bootswatch.com/cosmo/">Cosmo</a>
-    script(data-main="/javascripts/main", src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.5/require.min.js")
+
+    if app.version
+        link(rel='stylesheet', href='//:wideor-static.s3.amazonaws.com/#{app.version}_style.css')
+    else
+        script(data-main="/javascripts/main", src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.5/require.min.js")

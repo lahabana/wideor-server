@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start-server": "node app",
-    "start-worker": "node worker"
+    "start-worker": "node worker",
+    "build": "./build.sh"
   },
   "dependencies": {
     "express": "3.2.1",
