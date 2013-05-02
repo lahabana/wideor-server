@@ -1,10 +1,31 @@
-@import "bootstrap/bootstrap.less";
+//@import "bootstrap/bootstrap.less";
 
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+html, body {
+    height: 100%;
 }
 
-a {
-  color: #00B7FF;
+#wrap {
+    height: auto !important;
+    margin: 0 auto -60px;
+    min-height: 100%;
+}
+
+#footer, #push {
+    height: 60px;
+}
+
+#footer {
+    background-color: #080808;
+}
+
+#footer .container {
+    max-width: 680px;
+    width: auto;
+}
+#footer .container .credit {
+    margin: 20px 0;
+}
+
+.files li {
+    padding-top: 5px;
 }

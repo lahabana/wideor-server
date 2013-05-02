@@ -1,11 +1,35 @@
-<form>
-<div class="error"></div>
-<input type="number" id="form-duration" value="{{duration}}"/>
-<input type="text" id="form-format" value="{{format}}"/>
-<div class="file-adder">
-    <ul class="files">
-    </ul>
-    <button data-action="add" class="addFiles">+</button>
+<form class="well form-horizontal span7">
+<fieldset>
+    <legend>Create a new Video</legend>
+    <div class="error alert alert-error hide">
+        <strong>Error</strong>
+        <span class="content"></span>
+        <a class="close">×</a>
+    </div>
+    <div class="control-group">
+        <label for="form-duration" class="control-label">Duration:</label>
+        <div class="controls">
+            <input type="number" id="form-duration" class="input-xlarge" value="{{duration}}"/>
+            <p class="help-block">How long each image should appear for</p>
+        </div>
+    </div>
+    <div class="control-group">
+        <label for="form-format" class="control-label">Format:</label>
+        <div class="controls">
+            <input type="text" id="form-format" class="input-xlarge" value="{{format}}"/>
+            <p class="help-block">The format of the video should be [width]x[height]</p>
+        </div>
+    </div>
+
+    <div class="file-adder control-group">
+        <p>Files you want to be part of the video (the order is important):</p>
+        <ul class="files unstyled">
+        </ul>
+        <p class="help-block">Each image needs to be accessible through a url</p>
+        <button data-action="add" class="addFiles btn btn-inverse">+</button>
+    </div>
+<div class="form-actions">
+    <button class="submit btn btn-inverse">create</button>
 </div>
-<button class="submit">submit</button>
+</fieldset>
 </form>

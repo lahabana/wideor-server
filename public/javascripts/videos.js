@@ -53,6 +53,10 @@ define(deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
   });
 
   var views = {};
+
+  var displayError = function(container, error) {
+    container.find('.error').show().find('.content').html(error);
+  };
   views.normal = Backbone.View.extend({
     initialize: function() {
       this.listenTo(this.model, "change", this.render);
@@ -68,7 +72,8 @@ define(deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
       this.render();
     },
     render: function() {
-      this.$el.html(formTmpl(this.model.attributes.data));
+      var that = this;
+      that.$el.html(formTmpl(this.model.attributes.data));
       var $fileAdder = $(".file-adder", this.$el);
       $fileAdder.on('change', '.file-url', function(e) {
         var $this = $(this);
@@ -76,6 +81,10 @@ define(deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
         if (exts.length > 1) {
           $this.siblings('.file-format').val(exts[exts.length - 1]);
         }
+      });
+      var $err = $('.error');
+      $err.find('.close').on('click', function() {
+        $err.hide();
       });
       $('.files', $fileAdder).append(formFileTmpl());
 
@@ -88,7 +97,7 @@ define(deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
         }
       });
       this.model.on('invalid', function(model, error) {
-        $('.error', this.$el).html(model.validationError);
+        displayError(that.$el, model.validationError);
       });
     },
     events: {
@@ -116,7 +125,7 @@ define(deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
           that.trigger('postVideo', data.id);
         },
         error: function(e, data) {
-          $('.error', this.$el).html("Server error please try again later");
+          displayError(that.$el, "Server error please try again later");
         }
       });
     }

@@ -4,12 +4,17 @@ require.config({
     "Backbone": "lib/backbone",
     "underscore": "lib/underscore",
     "hbs": "lib/hbs",
-    "jquery": "lib/jquery"
+    "jquery": "lib/jquery",
+    "bootstrap": "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"
   },
   hbs: {
     disableI18n: true
   },
   shim: {
+    "bootstrap": {
+      deps: ["jquery"],
+      exports: "$.fn.popover"
+    },
     underscore: {
       exports: '_'
     },
