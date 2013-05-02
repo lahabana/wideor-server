@@ -1,6 +1,6 @@
 var deps = ['jquery', 'Backbone', 'hbs!template/videos/show',
             'hbs!template/videos/form', 'hbs!template/videos/formFile'];
-define(deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
+define("videos", deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
   var isNumber = function(number) {
     return typeof(+number) === "number" && isFinite(+number) && !isNaN(+number);
   };

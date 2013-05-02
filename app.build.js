@@ -1,19 +1,42 @@
 ({
-    appDir: ".",
-    baseUrl: "public/javascripts",
+    appDir: "public/javascripts",
+    baseUrl: ".",
     dir: "build",
     //Comment out the optimize line if you want
     //the code minified by UglifyJS.
     optimize: "none",
 
     paths: {
-        "jquery": "require-jquery"
+        "hbs": "lib/hbs",
+        "jquery": "lib/jquery",
+        "Handlebars": "lib/Handlebars",
+        "Backbone": "lib/backbone",
+        "underscore": "lib/underscore",
+        "bootstrap": "lib/bootstrap.min.js"
     },
-
     modules: [
         {
-            name: "main",
-            exclude: ["jquery"]
+            name: "main"
         }
-    ]
+    ],
+    hbs: {
+        disableI18n: true
+    },
+    findNestedDependencies: true,
+    shim: {
+        "bootstrap": {
+          deps: ["jquery"],
+          exports: "$.fn.popover"
+        },
+        underscore: {
+          exports: '_'
+        },
+        'Handlebars': {
+          exports: 'Handlebars'
+        },
+        Backbone: {
+          deps: ["underscore", "jquery"],
+          exports: "Backbone"
+        }
+    }
 })

@@ -1,9 +1,9 @@
 require.config({
   paths: {
+    "hbs": "lib/hbs",
     "Handlebars": "lib/Handlebars",
     "Backbone": "lib/backbone",
     "underscore": "lib/underscore",
-    "hbs": "lib/hbs",
     "jquery": "lib/jquery",
     "bootstrap": "lib/bootstrap.min.js"
   },
@@ -28,7 +28,8 @@ require.config({
   }
 });
 
-require(['jquery', 'Backbone', 'videos'], function($, Backbone, Videos) {
+require(['jquery', 'Backbone', 'videos', 'hbs!template/videos/show',
+            'hbs!template/videos/form', 'hbs!template/videos/formFile'], function($, Backbone, Videos) {
 
   var changeTitle = function(newTitle) {
     var title = document.title.split('|');
