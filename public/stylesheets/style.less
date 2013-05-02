@@ -1,4 +1,6 @@
-//@import "bootstrap/bootstrap.less";
+@import "bootstrap/bootstrap.less";
+@import "bootswatch.less";
+@import "variables.less";
 
 .inline-block(@align) {
     display: inline-block;
@@ -13,10 +15,6 @@ html, body {
     height: auto !important;
     margin: 0 auto -60px;
     min-height: 100%;
-}
-
-.label {
-    max-width: 80px;
 }
 
 .video {
@@ -40,13 +38,13 @@ html, body {
 }
 
 #footer, #push {
-    height: 60px;
+    height: @navbarHeight;
 }
 
 #footer {
-    background-color: #080808;
+    background-color: @black;
     .container {
-        max-width: 680px;
+        padding-left: 20px;
         width: auto;
         .credit {
             margin: 20px 0;
@@ -69,8 +67,8 @@ form {
 .carousel {
     background-color: rgba(0, 0, 0, 0.8);
     .carousel-nb {
-        background: none repeat scroll 0 0 #080808;
-        color: #FFFFFF;
+        background: none repeat scroll 0 0 @black;
+        color: @white;
         right: 0;
         opacity: 0.5;
         position: absolute;
