@@ -12,7 +12,7 @@
         "Handlebars": "lib/Handlebars",
         "Backbone": "lib/backbone",
         "underscore": "lib/underscore",
-        "bootstrap": "lib/bootstrap.js"
+        "bootstrap": "lib/bootstrap"
     },
     modules: [
         {
