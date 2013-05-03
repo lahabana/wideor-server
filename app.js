@@ -18,7 +18,7 @@ app.configure(function(){
   var queue = new jobberTrack.Queue(client, process.env.WIDEOR_QUEUE_NAME);
   app.set('redis-client', client);
   app.set('queue', queue);
-  app.set('version', process.env.WIDEOR_VERSION);
+  app.set('version', process.env.WIDEOR_VERSION || "development");
   app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
@@ -29,16 +29,25 @@ app.configure(function(){
   app.use(express.cookieParser('your secret here'));
   app.use(express.session());
   app.use(function(req, res, next) {
-    res.locals.app = app;
+    var version = app.get('version');
+    res.locals.app = {
+      version: version
+    };
+    if (version === 'development') {
+      res.locals.app.js_url = "/javascripts/";
+      res.locals.app.css_url = "/stylesheets/";
+    } else {
+      res.locals.app.js_url = "//" + process.env.WIDEOR_AWS_STATICBUCKET + '.s3.amazonaws.com/' + version;
+      res.locals.app.css_url = res.locals.app.js_url;
+    }
     next();
   });
+  if (app.get('version') === "development") {
+    app.use(require('less-middleware')({ src: __dirname + '/public' }));
+    app.use(express.static(path.join(__dirname, 'public')));
+    app.use(express.errorHandler());
+  }
   app.use(app.router);
-});
-
-app.configure('development', function(){
-  app.use(require('less-middleware')({ src: __dirname + '/public' }));
-  app.use(express.static(path.join(__dirname, 'public')));
-  app.use(express.errorHandler());
 });
 
 app.get('/', routes.index);
@@ -48,6 +57,8 @@ app.get('/videos/add', routes.empty);
 
 app.get('/api/videos/:id', routes.videos.show);
 app.post('/api/videos', routes.videos.create);
+
+console.log("Starting version:", app.get('version'));
 
 app.get('redis-client').on('ready', function() {
   routes.videos.setQueue(app.get('queue'));

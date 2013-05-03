@@ -2,10 +2,7 @@ doctype 5
 html
   head
     title= title
-    if app.version
-        link(rel='stylesheet', href='//:wideor-static.s3.amazonaws.com/#{app.version}_style.css')
-    else
-        link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='#{app.css_url}style.css')
 
   body
     #wrap
@@ -35,7 +32,4 @@ html
                 | / Bootstrap theme forked from <a href="http://thomaspark.me/">Thomas park</a>'s
                 |  <a href="http://bootswatch.com/cosmo/">Cosmo</a>
 
-    if app.version
-        link(rel='stylesheet', href='//wideor-static.s3.amazonaws.com/#{app.version}_style.css')
-    else
-        script(data-main="/javascripts/main", src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.5/require.min.js")
+    script(data-main="#{app.js_url}main.js", src="#{app.js_url}require.js")
