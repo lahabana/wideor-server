@@ -48,12 +48,12 @@ fi
 npm install
 npm test
 # We deal with the js files
-r.js -o app.build.js
+node_modules/requirejs/bin/r.js -o app.build.js
 # Top of the pops would be to add gz compression
-uglifyjs build/main.js -c -m -o build/main.min.js
-uglifyjs build/require.js -c -m -o build/require.min.js
+node_modules/uglify-js/bin/uglifyjs build/main.js -c -m -o build/main.min.js
+node_modules/uglify-js/bin/uglifyjs build/require.js -c -m -o build/require.min.js
 # Now with the css
-lessc  public/stylesheets/style.less  --yui-compress build/style.css
+node_modules/less/bin/lessc  public/stylesheets/style.less  --yui-compress build/style.css
 
 s3cmd put --acl-public --add-header='Expires: Sat, 20 Nov 2286 18:46:39 GMT' \
           --guess-mime-type build/style.css \
@@ -65,4 +65,4 @@ s3cmd put --acl-public --add-header='Expires: Sat, 20 Nov 2286 18:46:39 GMT' \
           --guess-mime-type build/main.min.js \
           s3://"$WIDEOR_AWS_STATICBUCKET"/"$NEW_VERSION"main.js
 
-npm version "$VERSION"
+npm version "$NEW_VERSION"
