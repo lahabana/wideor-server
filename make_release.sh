@@ -21,7 +21,8 @@ compareVersions ()
   echo  '0'
 } # ----------  end of function compareVersions  ----------
 
-RE_VERSION='[0-9]+\.[0-9]+\.[0-9]+'
+# Exits the script if any command returns not 0
+set -e
 
 if [ $# -ne 1 ]; then
   echo "You need to pass in a version number"
@@ -55,6 +56,9 @@ node_modules/uglify-js/bin/uglifyjs build/require.js -c -m -o build/require.min.
 # Now with the css
 node_modules/less/bin/lessc  public/stylesheets/style.less  --yui-compress build/style.css
 
+
+npm version "$NEW_VERSION"
+
 s3cmd put --acl-public --add-header='Expires: Sat, 20 Nov 2286 18:46:39 GMT' \
           --guess-mime-type build/style.css \
           s3://"$WIDEOR_AWS_STATICBUCKET"/"$NEW_VERSION"style.css
@@ -65,4 +69,4 @@ s3cmd put --acl-public --add-header='Expires: Sat, 20 Nov 2286 18:46:39 GMT' \
           --guess-mime-type build/main.min.js \
           s3://"$WIDEOR_AWS_STATICBUCKET"/"$NEW_VERSION"main.js
 
-npm version "$NEW_VERSION"
+git push
