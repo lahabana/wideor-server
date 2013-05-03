@@ -28,8 +28,8 @@ require.config({
   }
 });
 
-require(['jquery', 'Backbone', 'videos', 'hbs!template/videos/show',
-            'hbs!template/videos/form', 'hbs!template/videos/formFile'], function($, Backbone, Videos) {
+require(['jquery', 'Backbone', 'videos', 'hbs!template/videos/error', 'hbs!template/videos/show',
+            'hbs!template/videos/form', 'hbs!template/videos/formFile'], function($, Backbone, Videos, errorTmpl) {
 
   var changeTitle = function(newTitle) {
     var title = document.title.split('|');
@@ -58,7 +58,15 @@ require(['jquery', 'Backbone', 'videos', 'hbs!template/videos/show',
     var video = new Videos.Model({id:id});
     changeTitle("video " + id);
     var videoView = new Videos.views.normal({el: $("#content"), model: video});
-    video.fetch();
+    video.fetch({
+      "error": function(e, res) {
+        if (res.status === 404) {
+          $('#content').html(errorTmpl({code:404}));
+        } else {
+          $('#content').html(errorTmpl({code:500, message:res.statusText}));
+        }
+      }
+    });
   });
 
   $('.bblink').click(function(e) {

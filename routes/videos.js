@@ -4,7 +4,7 @@ var createError = function(res, code, message) {
   code = code || 500;
   message = message || "Unexpected error";
   return res.jsonp(code, {code:code, message:message});
-}
+};
 
 var supportedFormat = {
   "jpg": "jpg",
@@ -94,4 +94,8 @@ exports.create = function(req, res) {
     result.id = resource.id;
     return res.jsonp(201, result);
   });
+};
+
+exports.notFound = function(req, res) {
+  return createError(res, 404, "Not Found");
 };

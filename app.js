@@ -45,10 +45,26 @@ app.configure(function(){
   if (app.get('version') === "development") {
     app.use(require('less-middleware')({ src: __dirname + '/public' }));
     app.use(express.static(path.join(__dirname, 'public')));
+    app.use(app.router);
     app.use(express.errorHandler());
+  } else {
+    app.set('view cache', true);
+    app.use(app.router);
+    app.use(function(err, req, res, next){
+      console.error(err.stack);
+      res.render('500', {title: "Wideor.it | 500 Our Error"});
+    });
   }
-  app.use(app.router);
 });
+
+notFound = function(req, res) {
+  if (req.xhr) {
+    routes.videos.notFound(req, res);
+  } else {
+    res.status(404);
+    res.render('404', {title: "Wideor.it | 404 Not Foud"});
+  }
+};
 
 app.get('/', routes.index);
 app.get('/about', routes.about);
@@ -57,6 +73,7 @@ app.get('/videos/add', routes.empty);
 
 app.get('/api/videos/:id', routes.videos.show);
 app.post('/api/videos', routes.videos.create);
+app.all('/*', notFound);
 
 console.log("Starting version:", app.get('version'));
 
