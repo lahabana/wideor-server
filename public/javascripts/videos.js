@@ -67,7 +67,6 @@ define("videos", deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
   });
 
   views.form = Backbone.View.extend({
-    model: new model(),
     initialize: function() {
       this.render();
     },
@@ -120,7 +119,7 @@ define("videos", deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
     send: function(e) {
       e.preventDefault();
       var that = this;
-      this.model.save(that.extractData(), {
+      that.model.save(that.extractData(), {
         success: function (data) {
           that.trigger('postVideo', data.id);
         },

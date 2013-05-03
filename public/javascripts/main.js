@@ -5,7 +5,7 @@ require.config({
     "Backbone": "lib/backbone",
     "underscore": "lib/underscore",
     "jquery": "lib/jquery",
-    "bootstrap": "lib/bootstrap.min.js"
+    "bootstrap": "lib/bootstrap"
   },
   hbs: {
     disableI18n: true
@@ -28,7 +28,7 @@ require.config({
   }
 });
 
-require(['jquery', 'Backbone', 'videos', 'hbs!template/videos/error', 'hbs!template/videos/show',
+require(['jquery', 'Backbone', 'videos', 'hbs!template/videos/error', 'bootstrap', 'hbs!template/videos/show',
             'hbs!template/videos/form', 'hbs!template/videos/formFile'], function($, Backbone, Videos, errorTmpl) {
 
   var changeTitle = function(newTitle) {
@@ -42,22 +42,36 @@ require(['jquery', 'Backbone', 'videos', 'hbs!template/videos/error', 'hbs!templ
       "": "home",
       "videos/add": "showVideoForm",
       "videos/:id": "showVideo"
+    },
+    initialize: function() {
+      this.currentView = null;
+    },
+    cleanView: function() {
+      if (this.currentView) {
+        this.currentView.remove();
+        this.currentView = null;
+      }
+      return $('<div></div>');
     }
   });
 
   var app_router = new AppRouter();
-  app_router.on('route:showVideoForm', function(id) {
+  app_router.on('route:showVideoForm', function() {
+    var $view = app_router.cleanView();
     changeTitle("add video");
-    var videoView = new Videos.views.form({el: $("#content")});
-    videoView.on('postVideo', function(id) {
+    app_router.currentView = new Videos.views.form({el: $view, model: new Videos.Model()});
+    $("#content").html($view);
+    app_router.currentView.on('postVideo', function(id) {
       app_router.navigate('videos/' + id, {trigger: true});
     });
   });
 
   app_router.on('route:showVideo', function(id) {
-    var video = new Videos.Model({id:id});
+    var $view = app_router.cleanView();
     changeTitle("video " + id);
-    var videoView = new Videos.views.normal({el: $("#content"), model: video});
+    var video = new Videos.Model({id:id});
+    app_router.currentView = new Videos.views.normal({el: $view, model: video});
+    $("#content").html($view);
     video.fetch({
       "error": function(e, res) {
         if (res.status === 404) {
