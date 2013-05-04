@@ -37,7 +37,7 @@ app.configure(function(){
       res.locals.app.js_url = "/javascripts/";
       res.locals.app.css_url = "/stylesheets/";
     } else {
-      res.locals.app.js_url = "//" + process.env.WIDEOR_AWS_STATICBUCKET + '.s3.amazonaws.com/' + version;
+      res.locals.app.js_url = "//" + process.env.WIDEOR_AWS_CLOUDFRONT_URL + '/' + version;
       res.locals.app.css_url = res.locals.app.js_url;
     }
     next();
