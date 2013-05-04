@@ -30,7 +30,7 @@ You will need to set up some environment variables to make it work. (`export NAM
 
 ## AWS Configuration
 
-`WIDEOR_AWS_CLOUDFRONT_URL` the name of the bucket where the compiled css and js are stored (only one the server)
+`WIDEOR_AWS_CLOUDFRONT_URL` the url to the cloudfront where the compiled css and js are stored (only one the server)
 
 `WIDEOR_AWS_ACCESSKEYID` The access key id to upload to AWS (only on the worker)
 
