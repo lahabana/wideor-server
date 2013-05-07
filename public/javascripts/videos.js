@@ -1,6 +1,6 @@
-var deps = ['jquery', 'Backbone', 'hbs!template/videos/show',
-            'hbs!template/videos/form', 'hbs!template/videos/formFile'];
-define("videos", deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
+var deps = ['jquery', 'Backbone', 'fileadder', 'hbs!template/videos/show',
+            'hbs!template/videos/form'];
+define("videos", deps, function($, Backbone, FileAdder, showTmpl, formTmpl) {
   var isNumber = function(number) {
     return typeof(+number) === "number" && isFinite(+number) && !isNaN(+number);
   };
@@ -54,9 +54,6 @@ define("videos", deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
 
   var views = {};
 
-  var displayError = function(container, error) {
-    container.find('.error').show().find('.content').html(error);
-  };
   views.normal = Backbone.View.extend({
     initialize: function() {
       this.listenTo(this.model, "change", this.render);
@@ -72,63 +69,52 @@ define("videos", deps, function($, Backbone, showTmpl, formTmpl, formFileTmpl) {
     },
     render: function() {
       var that = this;
-      that.$el.html(formTmpl(this.model.attributes.data));
-      var $fileAdder = $(".file-adder", this.$el);
-      $fileAdder.on('change', '.file-url', function(e) {
-        var $this = $(this);
-        var exts = $this.val().split('.');
-        if (exts.length > 1) {
-          $this.siblings('.file-format').val(exts[exts.length - 1]);
-        }
-      });
-      var $err = $('.error');
-      $err.find('.close').on('click', function() {
-        $err.hide();
-      });
-      $('.files', $fileAdder).append(formFileTmpl());
-
-      $fileAdder.on('click', 'button', function(e) {
-        e.preventDefault();
-        if($(this).data("action") === "add") {
-          $('.files', $fileAdder).append(formFileTmpl());
-        } else if ($(this).data("action") === "remove") {
-          $(this).parent().remove();
-        }
-      });
+      var $view = $(formTmpl(this.model.attributes.data));
+      this.fileAdder = new FileAdder($view.find(".file-adder"));
       this.model.on('invalid', function(model, error) {
-        displayError(that.$el, model.validationError);
+        that.displayError(model.validationError);
       });
+      that.$el.html($view);
     },
     events: {
       'click .submit': 'send'
     },
-    extractData: function() {
-      var data = {};
-      data.duration = $('#form-duration', this.$el).val();
-      data.format = $('#form-format', this.$el).val();
-      data.files = [];
-      $(".files li", this.$el).each(function (idx, elt) {
-        var url = $('.file-url', this).val().trim();
-        var format = $('.file-format', this).val().trim();
-        if (url !== '') {
-          data.files.push({path: url, format: format});
-        }
+    displayError: function(error) {
+      $err = this.$el.find('.error');
+      $err.show().find('.content').html(error);
+      $err.find('.close').one('click', function() {
+        $err.hide();
       });
-      return {data: data};
+    },
+    extractData: function() {
+      return {
+        duration: this.$el.find('#form-duration').val(),
+        format: this.$el.find('#form-format').val(),
+        files: this.fileAdder.getFiles()
+      };
+    },
+    isValid: function() {
+      if (!this.fileAdder.isValid()) {
+        this.displayError("Some of your uploads are either unfinished or failed. " +
+                          "Please wait or remove the failed files");
+        return false;
+      }
+      return true;
     },
     send: function(e) {
       e.preventDefault();
       var that = this;
-      that.model.save(that.extractData(), {
-        success: function (data) {
-          that.trigger('postVideo', data.id);
-        },
-        error: function(e, data) {
-          displayError(that.$el, "Server error please try again later");
-        }
-      });
+      if (that.isValid()) {
+        that.model.save({data: that.extractData()}, {
+          success: function (data) {
+            that.trigger('postVideo', data.id);
+          },
+          error: function(e, data) {
+            that.displayError("Server error please try again later");
+          }
+        });
+      }
     }
   });
-
   return {Model: model, views: views};
 });

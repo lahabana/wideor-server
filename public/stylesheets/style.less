@@ -1,6 +1,7 @@
 @import "bootstrap/bootstrap.less";
 @import "bootswatch.less";
 @import "variables.less";
+@import "fileupload.less";
 
 .inline-block(@align) {
     display: inline-block;
@@ -55,6 +56,12 @@ html, body {
 form {
     .files li {
         padding-top: 5px;
+    }
+    .file-url, .file-name {
+        width: 20em;
+    }
+    .file-format {
+        width: 5em;
     }
 }
 

@@ -5,7 +5,9 @@ require.config({
     "Backbone": "lib/backbone",
     "underscore": "lib/underscore",
     "jquery": "lib/jquery",
-    "bootstrap": "lib/bootstrap"
+    "bootstrap": "lib/bootstrap",
+    "jquery.ui.widget": "lib/jquery.ui.widget",
+    "jquery.fileupload": "lib/fileupload/jquery.fileupload",
   },
   hbs: {
     disableI18n: true
@@ -28,8 +30,10 @@ require.config({
   }
 });
 
-require(['jquery', 'Backbone', 'videos', 'hbs!template/videos/error', 'bootstrap', 'hbs!template/videos/show',
-            'hbs!template/videos/form', 'hbs!template/videos/formFile'], function($, Backbone, Videos, errorTmpl) {
+var deps = ['jquery', 'Backbone', 'videos', 'hbs!template/videos/error', 'bootstrap',
+            'hbs!template/videos/show', 'hbs!template/videos/form', 'hbs!template/videos/formFile',
+            'jquery.ui.widget', 'jquery.fileupload', 'fileadder'];
+require(deps, function($, Backbone, Videos) {
 
   var changeTitle = function(newTitle) {
     var title = document.title.split('|');

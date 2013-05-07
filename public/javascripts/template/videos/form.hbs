@@ -22,11 +22,19 @@
     </div>
 
     <div class="file-adder control-group">
-        <p>Files you want to be part of the video (the order is important):</p>
+        <!-- The global progress bar -->
+        <div class="progress" class="progress progress-primary progress-striped">
+            <div class="bar"></div>
+        </div>
+        <p>Add files you want to be part of the video (the order is important):</p>
         <ul class="files unstyled">
         </ul>
-        <p class="help-block">Each image needs to be accessible through a url</p>
-        <button data-action="add" class="addFiles btn btn-inverse">+</button>
+        <p class="help-block">You can either upload files or provide a url for an existing file</p>
+        <button data-action="add" class="addFiles btn btn-inverse">Add File from Url</button>
+        <div class="btn btn-primary fileinput-button">
+            <span>Add Files from disk</span>
+            <input class="fileupload" type="file" name="file" accept="image/*" multiple>
+        </div>
     </div>
 <div class="form-actions">
     <button class="submit btn btn-inverse">create</button>

@@ -1,5 +1,13 @@
 <li>
-    <input class="file-url" type="url" placeholder="file url"/>
-    <input class="file-format" type="text" placeholder="format"/>
+    {{#if upload}}
+        <input disabled="disabled" class="file-name" type="text" value="{{name}}"/>
+        <input type="hidden" class="file-url"/>
+    {{else}}
+        <input class="file-url" type="url" placeholder="file url"/>
+    {{/if}}
+    <input class="file-format" type="text" placeholder="format" {{#if format}}value="{{format}}" {{/if}}/>
     <button data-action="remove" class="removeFile btn">-</button>
+    {{#if upload}}
+        <span class="status badge badge-warning" data-status="waiting">In progress...</span>
+    {{/if}}
 </li>
