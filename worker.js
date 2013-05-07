@@ -5,17 +5,18 @@ var MultiPartUpload = require('knox-mpu');
 var wideor = require('./wideor');
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
+var config = require('./config');
 
-var client = redis.createClient(process.env.WIDEOR_REDIS_PORT || 6379,
-                                process.env.WIDEOR_REDIS_HOST || "127.0.0.1",
+var client = redis.createClient(config.redis.port,
+                                config.redis.host,
                                 "");
-var S3 = knox.createClient({key: process.env.WIDEOR_AWS_ACCESSKEYID,
-                                secret: process.env.WIDEOR_AWS_SECRETACCESSKEY,
-                                bucket: process.env.WIDEOR_AWS_BUCKET
+var S3 = knox.createClient({key: config.aws.key,
+                                 secret: config.aws.secret,
+                                 bucket: config.aws.bucket_video
                             });
 
 var JobHandler = function(queue) {
-  this.queue = new jobberTrack.Queue(client, process.env.WIDEOR_QUEUE_NAME);
+  this.queue = new jobberTrack.Queue(client, config.redis.queue_name);
   EventEmitter.call(this);
 };
 util.inherits(JobHandler, EventEmitter);

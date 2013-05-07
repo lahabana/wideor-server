@@ -8,18 +8,18 @@ var express = require('express')
   , path = require('path');
 var redis = require('redis');
 var jobberTrack = require('jobber-track');
+var config = require('./config');
 
 var app = express();
 
 app.configure(function(){
-  var client = redis.createClient(process.env.WIDEOR_REDIS_PORT || 6379,
-                                  process.env.WIDEOR_REDIS_HOST || "127.0.0.1",
+  var client = redis.createClient(config.redis.port,
+                                  config.redis.host,
                                   "");
-  var queue = new jobberTrack.Queue(client, process.env.WIDEOR_QUEUE_NAME);
+  var queue = new jobberTrack.Queue(client, config.redis.queue_name);
   app.set('redis-client', client);
   app.set('queue', queue);
-  app.set('version', process.env.WIDEOR_VERSION || "development");
-  app.set('port', process.env.PORT || 3000);
+  app.set('port', config.port);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.favicon(__dirname + "/public/favicon.ico", {maxAge: 2592000000}));
@@ -29,20 +29,19 @@ app.configure(function(){
   app.use(express.cookieParser('your secret here'));
   app.use(express.session());
   app.use(function(req, res, next) {
-    var version = app.get('version');
     res.locals.app = {
-      version: version
+      version: config.version
     };
-    if (version === 'development') {
+    if (config.version === 'development') {
       res.locals.app.js_url = "/javascripts/";
       res.locals.app.css_url = "/stylesheets/";
     } else {
-      res.locals.app.js_url = "//" + process.env.WIDEOR_AWS_CLOUDFRONT_URL + '/' + version;
+      res.locals.app.js_url = "//" + config.aws.cloudfront + '/' + config.version;
       res.locals.app.css_url = res.locals.app.js_url;
     }
     next();
   });
-  if (app.get('version') === "development") {
+  if (config.version === "development") {
     app.use(require('less-middleware')({ src: __dirname + '/public' }));
     app.use(express.static(path.join(__dirname, 'public')));
     app.use(app.router);
@@ -75,7 +74,7 @@ app.get('/api/videos/:id', routes.videos.show);
 app.post('/api/videos', routes.videos.create);
 app.all('/*', notFound);
 
-console.log("Starting version:", app.get('version'));
+console.log("Starting version:", config.version);
 
 app.get('redis-client').on('ready', function() {
   routes.videos.setQueue(app.get('queue'));
