@@ -30,10 +30,9 @@ require.config({
   }
 });
 
-var deps = ['jquery', 'Backbone', 'videos', 'hbs!template/videos/error', 'bootstrap',
+require(['jquery', 'Backbone', 'videos', 'hbs!template/videos/error', 'bootstrap',
             'hbs!template/videos/show', 'hbs!template/videos/form', 'hbs!template/videos/formFile',
-            'jquery.ui.widget', 'jquery.fileupload', 'fileadder'];
-require(deps, function($, Backbone, Videos) {
+            'jquery.ui.widget', 'jquery.fileupload', 'fileadder'], function($, Backbone, Videos) {
 
   var changeTitle = function(newTitle) {
     var title = document.title.split('|');
