@@ -24,18 +24,36 @@ compareVersions ()
 # Exits the script if any command returns not 0
 set -e
 
-if [ $# -ne 1 ]; then
-  echo "You need to pass in a version number"
-  exit -1
-fi
-if [[ ! "$1" =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
-  echo "The version number passed is invalid"
-  exit -1
+if [ $# -eq 0 ]; then
+    echo "You need to pass in a version number"
+    exit -1
 fi
 
 # Extract our versions
-NEW_VERSION=$1
 CUR_VERSION=$(npm "version" | grep "wideor-server" | egrep -o '[0-9]+\.[0-9]+\.[0-9]+')
+NEW_VERSION=$1
+
+if [[ $# -gt 2 && $2 = "--no" ]]; then
+    shift 2
+    while (($#)) ; do
+        case "$1" in
+            "npm")
+                echo "no npm"
+                NO_NPM="yes"
+                ;;
+            "s3")
+                echo "no s3"
+                NO_S3="yes"
+                ;;
+        esac
+        shift
+    done
+fi
+
+if [[ ! "$NEW_VERSION" =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
+  echo "The version number passed is invalid"
+  exit -1
+fi
 
 if [ $(compareVersions "$NEW_VERSION" "$CUR_VERSION") -ne 1 ]; then
   echo "The new version needs to be greated that the current one"
@@ -56,17 +74,21 @@ node_modules/uglify-js/bin/uglifyjs build/require.js -c -m -o build/require.min.
 # Now with the css
 node_modules/less/bin/lessc  public/stylesheets/style.less  --yui-compress build/style.css
 
+if [[ $NO_NPM != "yes" ]]; then
+    npm version "$NEW_VERSION"
+fi
 
-npm version "$NEW_VERSION"
-
-s3cmd put --acl-public --add-header='Expires: Sat, 20 Nov 2286 18:46:39 GMT' \
-          --guess-mime-type build/style.css \
-          s3://"$WIDEOR_AWS_STATICBUCKET"/"$NEW_VERSION"style.css
-s3cmd put --acl-public --add-header='Expires: Sat, 20 Nov 2286 18:46:39 GMT' \
-          --guess-mime-type build/require.min.js \
-          s3://"$WIDEOR_AWS_STATICBUCKET"/"$NEW_VERSION"require.js
-s3cmd put --acl-public --add-header='Expires: Sat, 20 Nov 2286 18:46:39 GMT' \
-          --guess-mime-type build/main.min.js \
-          s3://"$WIDEOR_AWS_STATICBUCKET"/"$NEW_VERSION"main.js
-
-git push
+if [[ $NO_S3 != "yes" ]]; then
+    s3cmd put --acl-public --add-header='Expires: Sat, 20 Nov 2286 18:46:39 GMT' \
+              --guess-mime-type build/style.css \
+              s3://"$WIDEOR_AWS_STATICBUCKET"/"$NEW_VERSION"style.css
+    s3cmd put --acl-public --add-header='Expires: Sat, 20 Nov 2286 18:46:39 GMT' \
+              --guess-mime-type build/require.min.js \
+              s3://"$WIDEOR_AWS_STATICBUCKET"/"$NEW_VERSION"require.js
+    s3cmd put --acl-public --add-header='Expires: Sat, 20 Nov 2286 18:46:39 GMT' \
+              --guess-mime-type build/main.min.js \
+              s3://"$WIDEOR_AWS_STATICBUCKET"/"$NEW_VERSION"main.js
+fi
+if [[ $NO_NPM != "yes" ]]; then
+    git push
+fi

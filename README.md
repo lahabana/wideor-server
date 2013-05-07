@@ -30,13 +30,15 @@ You will need to set up some environment variables to make it work. (`export NAM
 
 ## AWS Configuration
 
-`WIDEOR_AWS_CLOUDFRONT_URL` the url to the cloudfront where the compiled css and js are stored (only one the server)
+`WIDEOR_AWS_CLOUDFRONT_URL` the url to the cloudfront where the compiled css and js are stored (only on the server)
 
-`WIDEOR_AWS_ACCESSKEYID` The access key id to upload to AWS (only on the worker)
+`WIDEOR_AWS_ACCESSKEYID` The access key id to upload to AWS (this is necessary on both server and worker)
 
-`WIDEOR_AWS_SECRETACCESSKEY` The secret access key to AWS (only on the worker)
+`WIDEOR_AWS_SECRETACCESSKEY` The secret access key to AWS (this is necessary on both server and worker)
 
-`WIDEOR_AWS_BUCKET` The bucket where the videos once created are stored (only on the worker)
+`WIDEOR_AWS_BUCKETVIDEO` The bucket where the videos once created are stored (only on the worker)
+
+`WIDEOR_AWS_BUCKETIMAGE` The bucket where the uploaded images are stored (only on the server)
 
 # Make a release
 
@@ -46,6 +48,7 @@ You shouldn't have to do this but making a release uses the script `make_release
 
 > x.y.z needs to be greater than the current version otherwise it will refuse the new release.
 > You will need s3cmd correctly configured to upload the static files
+> you can optionnally specify `--no` followed by s3 and/or npm to avoid doing this part of the script
 
 # TODO
 - Merge the validation functions on the client side and on the server side
