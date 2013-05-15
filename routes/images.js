@@ -20,18 +20,21 @@ var createError = function(res, code, message) {
 var convertAndUpload = function(stream, options, cb) {
   var ext = options.format.split('/')[1]
   var convert = child.spawn('convert', [ext + ':fd:0', '-background', options.bg,
-                                        '-resize', options.size, '-gravity', 'center', 
+                                        '-resize', options.size, '-gravity', 'center',
                                         '-extent', options.size,
                                         '-strip', '-sampling-factor', '4:2:2', '-type', 'TrueColor',
                                         'jpeg:-']);
   stream.pipe(convert.stdin);
 
+  convert.stderr.on('data', function(data) {
+    return cb("Invalid file");
+  });
   var upload = new MultiPartUpload({
       client: S3,
-      objectName: new Date().getTime() + '.' + ext, // Amazon S3 object name
+      objectName: new Date().getTime() + '.jpeg', // Amazon S3 object name
       stream: convert.stdout,
       headers: {
-        'Content-Type': options.format,
+        'Content-Type': 'image/jpeg',
         'x-amz-acl': 'public-read'
       }
   }, function(err, result) {
@@ -55,14 +58,14 @@ exports.upload = function(req, res) {
   // It's a form we will have to parse the file from the form
   if (/multipart\/form-data.*/.test(req.headers['content-type'])) {
     form = new formidable.IncomingForm();
-    
+
     form.onPart = function(part) {
       if (part.filename) {
         convertAndUpload(part, {format: part.mime, size: '640x480', bg: '#000000'}, resultCb);
       }
     };
     form.parse(req);
-  } else { 
+  } else {
     // It's a json with a url
     req.data = '';
     req.on('data', function(data) {
@@ -71,15 +74,20 @@ exports.upload = function(req, res) {
       }
       req.data += data;
     });
+
     req.on('end', function() {
       try {
-        var body = JSON.parse(req.data);
-        body = body.data || body;
+        req.data = JSON.parse(req.data);
       } catch (e) {
         return createError(res, 400, "invalid json posted");
       }
-      var reqt = request(body.path);
-      convertAndUpload(reqt, {format: body.format, size: '640x480', bg: '#000000'}, resultCb);
+      try {
+      convertAndUpload(request(req.data.path),
+                      {format: 'image/' + req.data.format, size: '640x480', bg: '#000000'},
+                      resultCb);
+      } catch (e) {
+        return createError(res, 400, "Invalid file");
+      }
     });
   }
 };

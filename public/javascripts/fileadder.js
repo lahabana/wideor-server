@@ -37,6 +37,35 @@ define("fileadder", deps, function($, formFileTmpl) {
         that.$files.append(formFileTmpl({}));
       } else if ($this.data("action") === "remove") {
         $this.parent().remove();
+      } else if ($this.data("action") === "start") {
+        $this.data("action", "");
+        var $parent = $this.parent();
+        var $status = $parent.find('.status');
+        $status.html('In Progress...')
+                .data('status', 'success')
+                .removeClass('badge-info')
+                .addClass('badge-warning');
+        $.ajax({
+          type: "POST",
+          url: "/images",
+          dataType: 'json',
+          data: JSON.stringify({
+            path: $parent.find('.file-url').val(),
+            format: $parent.find('.file-format').val()
+          })
+        }).done(function(data) {
+          $status.html('Success')
+                .data('status', 'success')
+                .removeClass('badge-warning')
+                .addClass('badge-success');
+          $parent.find('.file-url').val(data.path).attr('disabled', 'disabled');
+          $parent.find('.file-format').attr('disabled', 'disabled');
+        }).fail(function(e, data) {
+          $status.html('Failed')
+                .data('status', 'failed')
+                .removeClass('badge-warning')
+                .addClass('badge-important');
+        });
       }
     });
   }
@@ -49,30 +78,19 @@ define("fileadder", deps, function($, formFileTmpl) {
     if (that.queue.length !== 0 && that.curJob === null) {
       that.curJob = that.queue.pop();
       var curJob = that.curJob;
-      $.getJSON("/s3auth?" + $.param({"content_type": curJob.data.files[0].type}), function(aws) {
-        curJob.data.form.attr('action', 'https://' + aws.bucket + '.s3.amazonaws.com/');
-        curJob.data.formData = [
-          {name:"bucket", value: aws.bucket},
-          {name:"key", value: aws.key},
-          {name:"Content-Type", value: aws.content_type},
-          {name:"AWSAccessKeyId", value: aws.access_key_id},
-          {name:"acl", value: aws.acl},
-          {name:"policy", value: aws.policy},
-          {name:"signature", value: aws.signature}
-        ];
-        that.submit('https://' + aws.bucket + '.s3.amazonaws.com/' + aws.key);
-      });
+      curJob.data.form.attr('action', "/images");
+      that.submit();
     }
   };
 
-  FileAdder.prototype.submit = function(filename) {
+  FileAdder.prototype.submit = function() {
     var that = this;
-    that.curJob.data.submit().done(function(e, data) {
+    that.curJob.data.submit().done(function(data) {
       that.curJob.obj.find('.status').html('Success')
                               .data('status', 'success')
                               .removeClass('badge-warning')
                               .addClass('badge-success');
-      that.curJob.obj.find('.file-url').val(filename);
+      that.curJob.obj.find('.file-url').val(data.path);
     }).fail(function(e, data) {
       that.curJob.obj.find('.status').html('Failed')
                               .data('status', 'failed')
@@ -87,7 +105,7 @@ define("fileadder", deps, function($, formFileTmpl) {
     var res = true;
     this.$files.find('.status').each(function(idx, val) {
       var status = $(val).data("status");
-      if (status === "failed" || status === "waiting") {
+      if (status !== "success") {
         res = false;
       }
     });

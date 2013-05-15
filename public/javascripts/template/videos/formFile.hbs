@@ -5,9 +5,11 @@
     {{else}}
         <input class="file-url" type="url" placeholder="file url"/>
     {{/if}}
-    <input class="file-format" type="text" placeholder="format" {{#if format}}value="{{format}}" {{/if}}/>
+    <input class="file-format" type="text" placeholder="format" {{#if format}}value="{{format}}" disabled="disabled" {{/if}}/>
     <button data-action="remove" class="removeFile btn">-</button>
     {{#if upload}}
         <span class="status badge badge-warning" data-status="waiting">In progress...</span>
+    {{else}}
+        <button class="btn status badge badge-info" data-status="stopped" data-action="start">Start</span>
     {{/if}}
 </li>
