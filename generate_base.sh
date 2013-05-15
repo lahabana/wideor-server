@@ -32,7 +32,7 @@ function generate_video() {
 
   #Generate the video by first converting the images
   (for J in $(ls "$1/"* 2> /dev/null); do
-    convert "$J" -background '#000000' -resize "$FORMAT" -gravity center -extent "$FORMAT" -strip -sampling-factor '4:2:0' -type TrueColor jpeg:-
+    convert "$J" -background '#000000' -resize "$FORMAT" -gravity center -extent "$FORMAT" -strip -sampling-factor '4:2:2' -type TrueColor jpeg:-
   done) | avconv -f image2pipe -r 1/"$DURATION" -c:v mjpeg -i - -vcodec libx264 -r 20 -f mpegts - > "$RESULT_FILE"
 }
 
