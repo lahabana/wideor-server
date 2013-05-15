@@ -3,3 +3,5 @@ npm-debug.log
 .DS_STORE
 public/stylesheets/style.css
 build
+testFiles/
+checkFiles/

@@ -49,7 +49,7 @@ wideor.create = function(options, factory) {
   var opts = extractOptions(options);
   var strm = stroem.spawn('avconv', ['-f', 'image2pipe', '-r', '1/' + opts.duration,
                                       '-c:v', 'mjpeg', '-i', '-', '-vcodec', 'libx264', '-r',
-                                      '30', '-f', 'mpegts', '-'],
+                                      opts.fps, '-f', 'mpegts', '-'],
                           {}, factory ? factory(opts) : wideor.factory(opts));
   return strm;
 };

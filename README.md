@@ -50,6 +50,10 @@ You shouldn't have to do this but making a release uses the script `make_release
 > You will need s3cmd correctly configured to upload the static files
 > you can optionnally specify `--no` followed by s3 and/or npm to avoid doing this part of the script
 
+# Note on tests
+
+To avoid the git repo to be to fat with a lot of test images all the test files are centralized in a s3 bucket. It uses for the moment s3cmd to download all the test images and generate the base videos (with the script generate_base.sh). Be careful the base images being generated do not mean that they are readable and correctly generated.
+
 # TODO
 - Merge the validation functions on the client side and on the server side
 - Investigate cloudfront for serving js and css
