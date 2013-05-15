@@ -62,3 +62,5 @@ exports.s3Auth = function(req, res) {
 };
 
 exports.videos = require('./videos.js');
+
+exports.images = require('./images.js');

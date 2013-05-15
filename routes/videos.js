@@ -88,7 +88,6 @@ exports.create = function(req, res) {
     }
     req.data += data;
   });
-  console.log(req.data);
   req.on('end', function() {
     try {
       var body = JSON.parse(req.data);
