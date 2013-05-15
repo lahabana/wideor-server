@@ -81,18 +81,33 @@ var checkAndCreateContent = function(files, duration, format) {
 }
 
 exports.create = function(req, res) {
-  var body = req.body.data || req.body;
-  var content = checkAndCreateContent(body.files, body.duration, body.format);
-  if (content.err) {
-    return createError(res, 400, content.message);
-  }
-  queue.createAndPush(100000, content, function(err, resource) {
-    if (err) {
-      return createError(res, 500, err);
+  req.data = '';
+  req.on('data', function(data) {
+    if (req.data.length >= 1e6) {
+      return createError(res, 400, "body too long");
     }
-    var result = resource.getValue();
-    result.id = resource.id;
-    return res.jsonp(201, result);
+    req.data += data;
+  });
+  console.log(req.data);
+  req.on('end', function() {
+    try {
+      var body = JSON.parse(req.data);
+      body = body.data || body;
+    } catch (e) {
+      return createError(res, 400, "invalid json posted");
+    }
+    var content = checkAndCreateContent(body.files, body.duration, body.format);
+    if (content.err) {
+      return createError(res, 400, content.message);
+    }
+    queue.createAndPush(100000, content, function(err, resource) {
+      if (err) {
+        return createError(res, 500, err);
+      }
+      var result = resource.getValue();
+      result.id = resource.id;
+      return res.jsonp(201, result);
+    });
   });
 };
 
