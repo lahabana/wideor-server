@@ -14,12 +14,37 @@ define("fileadder", deps, function($, formFileTmpl) {
       add: function(e, data) {
         var $curFile = $(formFileTmpl({'upload':true, 'name': data.files[0].name,
                       'format': data.files[0].type.split('/')[1]}));
+        start($curFile);
         that.$files.append($curFile);
         that.queue.push({data: data, obj: $curFile});
         that.next(false);
       }
     });
     _initUrlAdder.call(this);
+  };
+
+  var fail = function($el) {
+    $el.find('.status').html('Failed')
+      .data('status', 'failed')
+      .removeClass('badge-warning')
+      .addClass('badge-important');
+  };
+
+  var success = function($el, data) {
+    $el.find('.status').html('Success')
+          .data('status', 'success')
+          .removeClass('badge-warning')
+          .addClass('badge-success');
+    $el.find('.file-url').val(data.path).attr('disabled', 'disabled');
+    $el.find('.file-format').attr('disabled', 'disabled');
+  };
+
+  var start = function($el) {
+    $el.find('.status').html('In Progress...')
+      .data('action', '')
+      .data('status', 'progress')
+      .removeClass('badge-info')
+      .addClass('badge-warning');
   };
 
   var _initUrlAdder = function() {
@@ -43,35 +68,25 @@ define("fileadder", deps, function($, formFileTmpl) {
         $this.data("action", "");
         var $parent = $this.parent();
         var $status = $parent.find('.status');
-        $status.html('In Progress...')
-                .data('status', 'success')
-                .removeClass('badge-info')
-                .addClass('badge-warning');
+        start($parent);
         $.ajax({
           type: "POST",
-          url: "/images",
+          url: "/images?" + $.param({size: that.size}),
           dataType: 'json',
           data: JSON.stringify({
             path: $parent.find('.file-url').val(),
             format: $parent.find('.file-format').val(),
             size: that.size
           })
-        }).done(function(data) {
-          $status.html('Success')
-                .data('status', 'success')
-                .removeClass('badge-warning')
-                .addClass('badge-success');
-          $parent.find('.file-url').val(data.path).attr('disabled', 'disabled');
-          $parent.find('.file-format').attr('disabled', 'disabled');
-        }).fail(function(e, data) {
-          $status.html('Failed')
-                .data('status', 'failed')
-                .removeClass('badge-warning')
-                .addClass('badge-important');
+        })
+        .done(function(data) {
+          success($parent, data);
+        }).fail(function(data) {
+          fail($parent, data);
         });
       }
     });
-  }
+  };
 
   FileAdder.prototype.next = function(resetCurJob) {
     var that = this;
@@ -81,27 +96,19 @@ define("fileadder", deps, function($, formFileTmpl) {
     if (that.queue.length !== 0 && that.curJob === null) {
       that.curJob = that.queue.pop();
       var curJob = that.curJob;
-      curJob.data.formData = [
-        {name: "size", value: that.size}
-      ];
-      curJob.data.form.attr('action', "/images");
+      curJob.data.form.attr('action', "/images?" + $.param({size: that.size}));
       that.submit();
     }
   };
 
   FileAdder.prototype.submit = function() {
     var that = this;
-    that.curJob.data.submit().done(function(data) {
-      that.curJob.obj.find('.status').html('Success')
-                              .data('status', 'success')
-                              .removeClass('badge-warning')
-                              .addClass('badge-success');
-      that.curJob.obj.find('.file-url').val(data.path);
-    }).fail(function(e, data) {
-      that.curJob.obj.find('.status').html('Failed')
-                              .data('status', 'failed')
-                              .removeClass('badge-warning')
-                              .addClass('badge-important');
+    var $status = that.curJob.obj.find('.status');
+    that.curJob.data.submit()
+    .done(function(data) {
+      success(that.curJob.obj, data);
+    }).fail(function(data) {
+      fail(that.curJob.obj, data);
     }).always(function(e, data) {
       that.next(true);
     });
@@ -132,7 +139,7 @@ define("fileadder", deps, function($, formFileTmpl) {
 
   FileAdder.prototype.extractData = function() {
     return {
-      size: this.size,
+      format: this.size,
       duration: this.duration,
       files: this._getFiles()
     };

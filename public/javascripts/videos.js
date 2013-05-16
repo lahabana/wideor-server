@@ -13,6 +13,37 @@ define("videos", deps, function($, Backbone, FileAdder, showTmpl, formTmpl) {
 
   var reUrl = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/;
 
+  var validTopForm = function(data) {
+    if (!isNumber(data.duration) || data.duration <= 0) {
+      return "The duration has to be a number";
+    }
+    var format = (data.format + '').toLowerCase().split('x');
+    if (format.length !== 2 || !isNumber(format[0]) || !isNumber(format[1]) ||
+          (+format[0]) <= 0 || (+format[1]) <= 0) {
+      return "The dimensions of the video needs to be in the format [width]x[height]";
+    }
+  };
+
+  var validFiles = function(files) {
+    if (files.length === 0) {
+      return "At least one file should be given";
+    }
+    for (var i = 0; i < files.length; i++) {
+      var format = typeof(files[i].format) === "string" ?
+                          supportedFormat[files[i].format.toLowerCase()] : null;
+      if (!/:\/\//.test(files[i].path)) {
+        files[i].path = 'http://' + files[i].path;
+      }
+      if (!reUrl.test(files[i].path)) {
+        return files[i].path + " is not a valid url";
+      }
+      if (!format) {
+        return files[i].format + " is not a supported format for file:" + files[i].path;
+      }
+      files[i].format = format;
+    }
+  };
+
   var model = Backbone.Model.extend({
     defaults: {
       data: {
@@ -24,31 +55,7 @@ define("videos", deps, function($, Backbone, FileAdder, showTmpl, formTmpl) {
     "urlRoot": "/api/videos/",
     validate: function(attributes, options) {
       var data = attributes.data;
-      if (!isNumber(data.duration) || data.duration <= 0) {
-        return "The duration has to be a number";
-      }
-      var format = (data.format + '').toLowerCase().split('x');
-      if (format.length !== 2 || !isNumber(format[0]) || !isNumber(format[1]) ||
-            (+format[0]) <= 0 || (+format[1]) <= 0) {
-        return "The dimensions of the video needs to be in the format [width]x[height]";
-      }
-      if (data.files.length === 0) {
-        return "At least one file should be given";
-      }
-      for (var i = 0; i < data.files.length; i++) {
-        var format = typeof(data.files[i].format) === "string" ?
-                                supportedFormat[data.files[i].format.toLowerCase()] : null;
-        if (!/:\/\//.test(data.files[i].path)) {
-          data.files[i].path = 'http://' + data.files[i].path;
-        }
-        if (!reUrl.test(data.files[i].path)) {
-          return data.files[i].path + " is not a valid url";
-        }
-        if (!format) {
-          return data.files[i].format + " is not a supported format for file:" + data.files[i].path;
-        }
-        data.files[i].format = format;
-      }
+      return validTopForm(data) || validFiles(data.files);
     }
   });
 
@@ -80,14 +87,21 @@ define("videos", deps, function($, Backbone, FileAdder, showTmpl, formTmpl) {
       'click .submit': 'send'
     },
     showFileAdder: function(e) {
+      var format = this.$el.find("#form-format").val();
+      var duration = this.$el.find('#form-duration').val();
       e.preventDefault();
-      this.fileAdder = new FileAdder(this.$el.find(".file-adder"),
-                                      this.$el.find("#form-format").val(),
-                                      this.$el.find('#form-duration').val());
-      this.$el.find(".file-adder").show();
-      this.$el.find(".submit").show();
-      this.$el.find(".next").hide();
-      this.$el.find(".main-form input").attr("disabled", "disabled");
+      var err = validTopForm({format: format, duration: duration});
+      if (!err) {
+        this.fileAdder = new FileAdder(this.$el.find(".file-adder"),
+                                        format,
+                                        duration);
+        this.$el.find(".file-adder").show();
+        this.$el.find(".submit").show();
+        this.$el.find(".next").hide();
+        this.$el.find(".main-form input").attr("disabled", "disabled");
+        return;
+      }
+      this.displayError(err);
     },
     displayError: function(error) {
       $err = this.$el.find('.error');
