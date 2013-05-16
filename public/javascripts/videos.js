@@ -70,14 +70,24 @@ define("videos", deps, function($, Backbone, FileAdder, showTmpl, formTmpl) {
     render: function() {
       var that = this;
       var $view = $(formTmpl(this.model.attributes.data));
-      this.fileAdder = new FileAdder($view.find(".file-adder"));
       this.model.on('invalid', function(model, error) {
         that.displayError(model.validationError);
       });
       that.$el.html($view);
     },
     events: {
+      'click .next': 'showFileAdder',
       'click .submit': 'send'
+    },
+    showFileAdder: function(e) {
+      e.preventDefault();
+      this.fileAdder = new FileAdder(this.$el.find(".file-adder"),
+                                      this.$el.find("#form-format").val(),
+                                      this.$el.find('#form-duration').val());
+      this.$el.find(".file-adder").show();
+      this.$el.find(".submit").show();
+      this.$el.find(".next").hide();
+      this.$el.find(".main-form input").attr("disabled", "disabled");
     },
     displayError: function(error) {
       $err = this.$el.find('.error');
@@ -85,13 +95,6 @@ define("videos", deps, function($, Backbone, FileAdder, showTmpl, formTmpl) {
       $err.find('.close').one('click', function() {
         $err.hide();
       });
-    },
-    extractData: function() {
-      return {
-        duration: this.$el.find('#form-duration').val(),
-        format: this.$el.find('#form-format').val(),
-        files: this.fileAdder.getFiles()
-      };
     },
     isValid: function() {
       if (!this.fileAdder.isValid()) {
@@ -105,7 +108,7 @@ define("videos", deps, function($, Backbone, FileAdder, showTmpl, formTmpl) {
       e.preventDefault();
       var that = this;
       if (that.isValid()) {
-        that.model.save({data: that.extractData()}, {
+        that.model.save({data: this.fileAdder.extractData()}, {
           success: function (data) {
             that.trigger('postVideo', data.id);
           },

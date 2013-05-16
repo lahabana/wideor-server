@@ -6,14 +6,12 @@
         <span class="content"></span>
         <a class="close">×</a>
     </div>
-    <div class="control-group">
+    <div class="control-group main-form">
         <label for="form-duration" class="control-label">Duration:</label>
         <div class="controls">
             <input type="number" id="form-duration" class="input-xlarge" value="{{duration}}"/>
             <p class="help-block">How long each image should appear for</p>
         </div>
-    </div>
-    <div class="control-group">
         <label for="form-format" class="control-label">Format:</label>
         <div class="controls">
             <input type="text" id="form-format" class="input-xlarge" value="{{format}}"/>
@@ -21,11 +19,7 @@
         </div>
     </div>
 
-    <div class="file-adder control-group">
-        <!-- The global progress bar -->
-        <div class="progress" class="progress progress-primary progress-striped">
-            <div class="bar"></div>
-        </div>
+    <div class="file-adder control-group hide">
         <p>Add files you want to be part of the video (the order is important):</p>
         <ul class="files unstyled">
         </ul>
@@ -37,7 +31,8 @@
         </div>
     </div>
 <div class="form-actions">
-    <button class="submit btn btn-inverse">create</button>
+    <button class="submit btn btn-inverse hide">create</button>
+    <button class="next btn btn-inverse">Add images</button>
 </div>
 </fieldset>
 </form>

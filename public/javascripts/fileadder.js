@@ -1,6 +1,8 @@
 var deps = ['jquery', 'hbs!template/videos/formFile', 'jquery.ui.widget', 'jquery.fileupload'];
 define("fileadder", deps, function($, formFileTmpl) {
-  var FileAdder = function($fileAdder) {
+  var FileAdder = function($fileAdder, size, duration) {
+    this.size = size;
+    this.duration = duration;
     this.$files = $fileAdder.find('.files');
     this.$adder = $fileAdder;
     this.queue = [];
@@ -51,7 +53,8 @@ define("fileadder", deps, function($, formFileTmpl) {
           dataType: 'json',
           data: JSON.stringify({
             path: $parent.find('.file-url').val(),
-            format: $parent.find('.file-format').val()
+            format: $parent.find('.file-format').val(),
+            size: that.size
           })
         }).done(function(data) {
           $status.html('Success')
@@ -78,6 +81,9 @@ define("fileadder", deps, function($, formFileTmpl) {
     if (that.queue.length !== 0 && that.curJob === null) {
       that.curJob = that.queue.pop();
       var curJob = that.curJob;
+      curJob.data.formData = [
+        {name: "size", value: that.size}
+      ];
       curJob.data.form.attr('action', "/images");
       that.submit();
     }
@@ -112,7 +118,7 @@ define("fileadder", deps, function($, formFileTmpl) {
     return res;
   };
 
-  FileAdder.prototype.getFiles = function() {
+  FileAdder.prototype._getFiles = function() {
     var files = [];
     this.$files.find("li").each(function (idx, elt) {
       var url = $('.file-url', this).val().trim();
@@ -122,6 +128,14 @@ define("fileadder", deps, function($, formFileTmpl) {
       }
     });
     return files;
+  };
+
+  FileAdder.prototype.extractData = function() {
+    return {
+      size: this.size,
+      duration: this.duration,
+      files: this._getFiles()
+    };
   }
 
   return FileAdder;
