@@ -16,18 +16,8 @@ var request = require('request');
 var wideor = {};
 wideor.factory = function(options) {
   return function(data, cb) {
-      var opts = {formatIn: data.format, size: options.size, formatOut: options.formatIn};
-      wideor.plugConvert(request(data.path), opts, cb);
+      cb(false, request(data.path));
   };
-};
-
-wideor.plugConvert = function(stream, opts, cb) {
-  var convert = child.spawn('convert', [opts.formatIn + ':fd:0', '-background', opts.bg || '#000000',
-                                        '-resize', opts.size, '-gravity', 'center', '-extent', opts.size,
-                                        '-strip', '-sampling-factor', '4:2:2', '-type', 'TrueColor',
-                                        'jpeg:-']);
-  stream.pipe(convert.stdin);
-  cb(false, convert.stdout);
 };
 
 var extractOptions = function(options) {
