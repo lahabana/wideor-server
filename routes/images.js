@@ -47,6 +47,10 @@ var convertAndUpload = function(stream, options, cb) {
 };
 
 exports.upload = function(req, res) {
+  var size = req.query.size;
+  if (!size) {
+    createError(res, 400, "The size is not valid");
+  }
   // parse a file upload
   var resultCb = function(err, result) {
     if (err) {
@@ -60,8 +64,8 @@ exports.upload = function(req, res) {
     form = new formidable.IncomingForm();
 
     form.onPart = function(part) {
-      if (part.filename) {
-        convertAndUpload(part, {format: part.mime, size: '640x480', bg: '#000000'}, resultCb);
+      if (part.filename) { // This is the file.
+        convertAndUpload(part, {format: part.mime, size: size, bg: '#000000'}, resultCb);
       }
     };
     form.parse(req);
@@ -83,7 +87,7 @@ exports.upload = function(req, res) {
       }
       try {
       convertAndUpload(request(req.data.path),
-                      {format: 'image/' + req.data.format, size: '640x480', bg: '#000000'},
+                      {format: 'image/' + req.data.format, size: size, bg: '#000000'},
                       resultCb);
       } catch (e) {
         return createError(res, 400, "Invalid file");
