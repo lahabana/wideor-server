@@ -73,11 +73,11 @@ define("fileadder", deps, function($, formFileTmpl) {
           type: "POST",
           url: "/images?" + $.param({size: that.size}),
           dataType: 'json',
-          data: JSON.stringify({
+          data: {
             path: $parent.find('.file-url').val(),
             format: $parent.find('.file-format').val(),
             size: that.size
-          })
+          }
         })
         .done(function(data) {
           success($parent, data);

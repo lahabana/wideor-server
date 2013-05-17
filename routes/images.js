@@ -1,4 +1,3 @@
-var formidable = require('formidable');
 var fs = require('fs');
 var knox = require('knox');
 var MultiPartUpload = require('knox-mpu');
@@ -18,7 +17,7 @@ var createError = function(res, code, message) {
 };
 
 var convertAndUpload = function(stream, options, cb) {
-  var ext = options.format.split('/')[1]
+  var ext = options.format.split('/')[1];
   var convert = child.spawn('convert', [ext + ':fd:0', '-background', options.bg,
                                         '-resize', options.size, '-gravity', 'center',
                                         '-extent', options.size,
@@ -27,7 +26,7 @@ var convertAndUpload = function(stream, options, cb) {
   stream.pipe(convert.stdin);
 
   convert.stderr.on('data', function(data) {
-    return cb("Invalid file");
+    return cb("Invalid file couldn't convert");
   });
   var upload = new MultiPartUpload({
       client: S3,
@@ -46,52 +45,43 @@ var convertAndUpload = function(stream, options, cb) {
   });
 };
 
-exports.upload = function(req, res) {
+exports.upload = function(req, res, next) {
   var size = req.query.size;
+  var stream;
+  var options = {size: size, bg: '#000000'};
   if (!size) {
     createError(res, 400, "The size is not valid");
   }
-  // parse a file upload
-  var resultCb = function(err, result) {
-    if (err) {
-      createError(res, 400, err);
-    } else {
-      res.jsonp(200, result);
-    }
-  };
+
   // It's a form we will have to parse the file from the form
   if (/multipart\/form-data.*/.test(req.headers['content-type'])) {
-    form = new formidable.IncomingForm();
-
-    form.onPart = function(part) {
-      if (part.filename) { // This is the file.
-        convertAndUpload(part, {format: part.mime, size: size, bg: '#000000'}, resultCb);
-      }
-    };
-    form.parse(req);
+    stream = fs.createReadStream(req.files.file.path);
+    options.format = req.files.file.type;
   } else {
-    // It's a json with a url
-    req.data = '';
-    req.on('data', function(data) {
-      if (req.data.length >= 1e6) {
-        return createError(res, 400, "body too long");
-      }
-      req.data += data;
-    });
-
-    req.on('end', function() {
-      try {
-        req.data = JSON.parse(req.data);
-      } catch (e) {
-        return createError(res, 400, "invalid json posted");
-      }
-      try {
-      convertAndUpload(request(req.data.path),
-                      {format: 'image/' + req.data.format, size: size, bg: '#000000'},
-                      resultCb);
-      } catch (e) {
-        return createError(res, 400, "Invalid file");
-      }
-    });
+    stream = request(req.body.path);
+    options.format = 'image/' + req.body.format;
   }
+  try {
+    convertAndUpload(stream,
+                    options,
+                    function(err, result) {
+                      if (err) {
+                        createError(res, 400, err);
+                      } else {
+                        res.jsonp(200, result);
+                      }
+                    });
+  } catch (e) {
+    console.error(e);
+    return createError(res, 400, "Invalid file");
+  }
+};
+
+var onEnd = function() {
+  throw new Error("no uploaded file");
+};
+
+var convertExternal = function(req, res) {
+  var size = req.query.size;
+  console.log(req.body);
 };
