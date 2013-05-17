@@ -1,3 +1,7 @@
+/**
+ * The routes to upload and convert files
+ */
+
 var fs = require('fs');
 var knox = require('knox');
 var MultiPartUpload = require('knox-mpu');
@@ -16,6 +20,7 @@ var createError = function(res, code, message) {
   return res.jsonp(code, {code:code, message:message});
 };
 
+// Launch convert and upload to S3
 var convertAndUpload = function(stream, options, cb) {
   var ext = options.format.split('/')[1];
   var convert = child.spawn('convert', [ext + ':fd:0', '-background', options.bg,
@@ -45,6 +50,7 @@ var convertAndUpload = function(stream, options, cb) {
   });
 };
 
+// Look if it's a form upload or just a link in a json call.
 exports.upload = function(req, res, next) {
   var size = req.query.size;
   var stream;
@@ -57,7 +63,7 @@ exports.upload = function(req, res, next) {
   if (/multipart\/form-data.*/.test(req.headers['content-type'])) {
     stream = fs.createReadStream(req.files.file.path);
     options.format = req.files.file.type;
-  } else {
+  } else { // it's a json
     stream = request(req.body.path);
     options.format = 'image/' + req.body.format;
   }
@@ -75,13 +81,4 @@ exports.upload = function(req, res, next) {
     console.error(e);
     return createError(res, 400, "Invalid file");
   }
-};
-
-var onEnd = function() {
-  throw new Error("no uploaded file");
-};
-
-var convertExternal = function(req, res) {
-  var size = req.query.size;
-  console.log(req.body);
 };

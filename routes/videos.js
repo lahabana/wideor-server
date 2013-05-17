@@ -42,6 +42,7 @@ exports.show = function(req, res) {
   return createError(res, 400, "An id is necessary to be sent");
 };
 
+// Validate the data and create the json that will be stored in redis
 var checkAndCreateContent = function(files, duration, format) {
   var content = {};
   if (!files || files.length === 0) {

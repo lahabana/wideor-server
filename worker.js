@@ -1,3 +1,15 @@
+/**
+Copyright (c) 2013 Charly Molter
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+// The autonomous worker that will take a job in the redis queue
+// create the video and upload it to the s3
 var redis = require('redis');
 var jobberTrack = require('jobber-track');
 var knox = require('knox');
@@ -21,6 +33,7 @@ var JobHandler = function(queue) {
 };
 util.inherits(JobHandler, EventEmitter);
 
+// Make the stream upload directly to s3
 var createS3Upload = function(stream, resource) {
   var that = this;
   var upload = new MultiPartUpload({
@@ -52,6 +65,7 @@ var createS3Upload = function(stream, resource) {
   });
 };
 
+// Start a new job
 JobHandler.prototype.startJob = function(err, res) {
   var that = this;
   if (err) {
@@ -83,8 +97,9 @@ JobHandler.prototype.startJob = function(err, res) {
       console.log(data);
     });
 
-
     createS3Upload.call(that, wid.stdout, resource);
+
+    // Add all the images to the video
     for (var i = 0; i < data.files.length; i++) {
       wid.add(data.files[i]);
     }
@@ -92,11 +107,13 @@ JobHandler.prototype.startJob = function(err, res) {
   });
 };
 
+// launch a new job (this is a blocking call if no job exists it will block until one is exists)
 JobHandler.prototype.launchJob = function() {
   console.log("Waiting for the next job");
   this.queue.popAndStart(this.startJob.bind(this));
 };
 
+// The actual worker
 var jobHandler = new JobHandler();
 
 var stop = false;
@@ -106,6 +123,7 @@ jobHandler.on('error', function(data) {
   client.end();
 });
 
+// Once a job is finished we start the next one if we have not asked to quit
 jobHandler.on('end', function(data) {
   if (!stop) {
     jobHandler.launchJob();
@@ -115,6 +133,7 @@ jobHandler.on('end', function(data) {
   }
 });
 
+// When we are connected to the redis client we start a new job
 client.on('ready', function ready_redis() {
   console.log("Connected to redis client");
   // Launch the first job
