@@ -1,5 +1,5 @@
 define('template/helpers/renderState', ['Handlebars'], function(Handlebars) {
-
+// A bootstrap helper to show the state of a video when displayed
   var hash = {
     'finished': { "class":'label-success', "string": "Finished"},
     'failed': { "class":'label-important', "string": "Failed"},
@@ -9,7 +9,7 @@ define('template/helpers/renderState', ['Handlebars'], function(Handlebars) {
 
   var renderState = function (context) {
     if (hash[context]) {
-      return new Handlebars.SafeString('<div class="label state ' + hash[context]['class'] + '"> State: ' + 
+      return new Handlebars.SafeString('<div class="label state ' + hash[context]['class'] + '"> State: ' +
                                         hash[context]['string'] + '</div>');
     }
   };

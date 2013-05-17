@@ -1,3 +1,7 @@
+/**
+ * Deal with images upload them to be converted etc.
+ * This should probably be changed into a backbone collection with a view.
+ */
 var deps = ['jquery', 'hbs!template/videos/formFile', 'jquery.ui.widget', 'jquery.fileupload'];
 define("fileadder", deps, function($, formFileTmpl) {
   var FileAdder = function($fileAdder, size, duration) {
@@ -5,9 +9,11 @@ define("fileadder", deps, function($, formFileTmpl) {
     this.duration = duration;
     this.$files = $fileAdder.find('.files');
     this.$adder = $fileAdder;
+    // The upload jobs awaiting
     this.queue = [];
     this.curJob = null;
     var that = this;
+    // Create the jquery fileupload that deals with multipart uploads
     $fileAdder.fileupload({
       dataType: 'json',
       sequentialUploads: true,
@@ -17,12 +23,14 @@ define("fileadder", deps, function($, formFileTmpl) {
         start($curFile);
         that.$files.append($curFile);
         that.queue.push({data: data, obj: $curFile});
-        that.next(false);
+        // The should be a job so we launch it
+        that.next();
       }
     });
     _initUrlAdder.call(this);
   };
 
+  // Updates the view on failure, success or start
   var fail = function($el) {
     $el.find('.status').html('Failed')
       .data('status', 'failed')
@@ -47,8 +55,10 @@ define("fileadder", deps, function($, formFileTmpl) {
       .addClass('badge-warning');
   };
 
+  // bind the events to actions
   var _initUrlAdder = function() {
     var that = this;
+    // To auto fill the format as soon as a url is entered
     that.$adder.on('change', '.file-url', function(e) {
       var $this = $(this);
       var exts = $this.val().split('.');
@@ -57,14 +67,16 @@ define("fileadder", deps, function($, formFileTmpl) {
       }
     });
 
+    // Deal with all the click on buttons depending on their
+    // data-action attribute
     that.$adder.on('click', 'button', function(e) {
       e.preventDefault();
       var $this = $(this);
-      if($this.data("action") === "add") {
+      if($this.data("action") === "add") { // Add a new image form
         that.$files.append(formFileTmpl({}));
-      } else if ($this.data("action") === "remove") {
+      } else if ($this.data("action") === "remove") { // remove an image
         $this.parent().remove();
-      } else if ($this.data("action") === "start") {
+      } else if ($this.data("action") === "start") { // start uploading for urls
         $this.data("action", "");
         var $parent = $this.parent();
         var $status = $parent.find('.status');
@@ -88,11 +100,9 @@ define("fileadder", deps, function($, formFileTmpl) {
     });
   };
 
-  FileAdder.prototype.next = function(resetCurJob) {
+  // Launch the next upload job if none is already started
+  FileAdder.prototype.next = function() {
     var that = this;
-    if (resetCurJob) {
-      that.curJob = null;
-    }
     if (that.queue.length !== 0 && that.curJob === null) {
       that.curJob = that.queue.pop();
       var curJob = that.curJob;
@@ -101,19 +111,23 @@ define("fileadder", deps, function($, formFileTmpl) {
     }
   };
 
+  // We upload the local image
   FileAdder.prototype.submit = function() {
     var that = this;
     var $status = that.curJob.obj.find('.status');
+
     that.curJob.data.submit()
     .done(function(data) {
       success(that.curJob.obj, data);
     }).fail(function(data) {
       fail(that.curJob.obj, data);
     }).always(function(e, data) {
-      that.next(true);
+      that.curJob = null;
+      that.next();
     });
   };
 
+  // Check all the files are valid (all succeeded)
   FileAdder.prototype.isValid = function() {
     var res = true;
     this.$files.find('.status').each(function(idx, val) {
@@ -125,6 +139,7 @@ define("fileadder", deps, function($, formFileTmpl) {
     return res;
   };
 
+  // Return an array of files {path: url, format: format}
   FileAdder.prototype._getFiles = function() {
     var files = [];
     this.$files.find("li").each(function (idx, elt) {
@@ -137,6 +152,7 @@ define("fileadder", deps, function($, formFileTmpl) {
     return files;
   };
 
+  // Return all the data necessary to create a video
   FileAdder.prototype.extractData = function() {
     return {
       format: this.size,

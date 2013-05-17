@@ -1,5 +1,5 @@
 define('template/helpers/bootstrapCarousel', ['Handlebars', 'bootstrap'], function(Handlebars) {
-
+  /** Handlebar helper to create a bootstrap carousel from a list of images */
   var bootstrapCarousel = function(items, options) {
 
     var start = '<div id="myCarousel" class="carousel slide">' ;
