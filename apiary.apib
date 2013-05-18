@@ -1,36 +1,104 @@
-HOST: http://www.google.com/
+--- HOST: http://www.google.com/
 
 --- wideor-server ---
-
+An API to create videos from images
 ---
-Welcome to the our sample API documentation. All comments can be written in (support [Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)
+
 ---
 
 --
-Shopping Cart Resources
-The following is a section of resources related to the shopping cart
+Video resource 
 --
 
 List products added into your shopping-cart. (comment block again in Markdown)
-GET /shopping-cart
+GET /api/videos/{id}
 < 200
 < Content-Type: application/json
-{ "items": [
-{ "url": "/shopping-cart/1", "product":"2ZY48XPZ", "quantity": 1, "name": "New socks", "price": 1.25 }
-] }
+{ 
+    "id": ,
+    "duration": 1,
+    "format": "",
+    "status": "",
+    "data": {
+        
+    },
+    "result": {} 
+}
 
-Save new products in your shopping cart
-POST /shopping-cart
+A valid and created video
+GET /api/videos/1234
+< 200
+< Content-Type: application/json
+{ 
+    "id": ,
+    "duration": 1,
+    "format": "",
+    "status": "",
+    "data": {
+        
+    },
+    "result": {} 
+}
+
+A video in the waiting queue
+GET /api/videos/1235
+< 200
+< Content-Type: application/json
+{ 
+    "id": ,
+    "duration": 1,
+    "format": "",
+    "status": "",
+    "data": {
+        
+    },
+    "result": {} 
+}
+
+A video in progress
+GET /api/videos/1236
+< 200
+< Content-Type: application/json
+{ 
+    "id": ,
+    "duration": 1,
+    "format": "",
+    "status": "",
+    "data": {
+        
+    },
+    "result": {} 
+}
+
+A failed video
+GET /api/videos/1237
+< 200
+< Content-Type: application/json
+{ 
+    "id": ,
+    "duration": 1,
+    "format": "",
+    "status": "",
+    "data": {
+        
+    },
+    "result": {} 
+}
+
+An non existing file
+GET /api/videos/9999
+< 404
+< Content-Type: application/json
+{ 
+    "code": 404,
+    "message": "Video not found"
+}
+
+Save a new video
+POST /api/videos{?size}
 > Content-Type: application/json
-{ "product":"1AB23ORM", "quantity": 2 }
+{}
 < 201
 < Content-Type: application/json
-{ "status": "created", "url": "/shopping-cart/2" }
+{}
 
--- Payment Resources --
-
-This resource allows you to submit payment information to process your *shopping cart* items
-POST /payment
-{ "cc": "12345678900", "cvc": "123", "expiry": "0112" }
-< 200
-{ "receipt": "/payment/receipt/1" }
