@@ -1,104 +1,138 @@
---- HOST: http://www.google.com/
+HOST: 
 
 --- wideor-server ---
+---
 An API to create videos from images
 ---
 
----
+-- Video resource --
 
---
-Video resource 
---
-
-List products added into your shopping-cart. (comment block again in Markdown)
+Shows the video if it exists
 GET /api/videos/{id}
 < 200
 < Content-Type: application/json
-{ 
-    "id": ,
-    "duration": 1,
-    "format": "",
-    "status": "",
-    "data": {
-        
-    },
-    "result": {} 
+{
+"state": "waiting",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {},
+"id": 1368916010358
 }
 
-A valid and created video
+TEST: Asks for a video which is successfully created
 GET /api/videos/1234
 < 200
 < Content-Type: application/json
-{ 
-    "id": ,
-    "duration": 1,
-    "format": "",
-    "status": "",
-    "data": {
-        
-    },
-    "result": {} 
+{
+"state": "finished",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {
+    "url": "http://wideortest.s3.amazonaws.com/1368804559322.mpeg"
+},
+"id": 1234
 }
 
-A video in the waiting queue
+TEST: Asks for a video which is waiting to be processed
 GET /api/videos/1235
 < 200
 < Content-Type: application/json
-{ 
-    "id": ,
-    "duration": 1,
-    "format": "",
-    "status": "",
-    "data": {
-        
-    },
-    "result": {} 
+{
+"state": "waiting",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {},
+"id": 1235
 }
 
-A video in progress
+TEST: Asks for a video currently in progress
 GET /api/videos/1236
 < 200
 < Content-Type: application/json
-{ 
-    "id": ,
-    "duration": 1,
-    "format": "",
-    "status": "",
-    "data": {
-        
-    },
-    "result": {} 
+{
+"state": "running",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {},
+"id": 1236
 }
 
-A failed video
+TEST: Asks for a video which has failed
 GET /api/videos/1237
 < 200
 < Content-Type: application/json
-{ 
-    "id": ,
-    "duration": 1,
-    "format": "",
-    "status": "",
-    "data": {
-        
-    },
-    "result": {} 
+{
+"state": "failed",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {},
+"id": 1237
 }
 
-An non existing file
+TEST: Asks for a non existing video
 GET /api/videos/9999
 < 404
 < Content-Type: application/json
 { 
-    "code": 404,
-    "message": "Video not found"
+"code": 404,
+"message": "Video not found"
 }
 
-Save a new video
-POST /api/videos{?size}
+Create a new video
+POST /api/videos
 > Content-Type: application/json
-{}
+{
+"data":{
+    "duration":"1",
+    "format":"640x480",
+    "files":[{
+        "path":"http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format":"png"    
+    }]
+}}
 < 201
 < Content-Type: application/json
-{}
+{
+"state": "waiting",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {},
+"id": 1234
+}
 
