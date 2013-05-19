@@ -53,6 +53,7 @@ app.configure(function(){
       res.locals.app.js_url = "//" + config.aws.cloudfront + '/' + config.version;
       res.locals.app.css_url = res.locals.app.js_url;
     }
+    res.locals.app.api_url = config.apiUrl;
     next();
   });
   if (config.version === "development") {

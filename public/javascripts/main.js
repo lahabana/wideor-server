@@ -34,7 +34,7 @@ require.config({
 // the dependencies (even those of submodules)
 require(['jquery', 'Backbone', 'videos', 'hbs!template/videos/error', 'bootstrap',
             'hbs!template/videos/show', 'hbs!template/videos/form', 'hbs!template/videos/formFile',
-            'jquery.ui.widget', 'jquery.fileupload', 'fileadder'], function($, Backbone, Videos) {
+            'jquery.ui.widget', 'jquery.fileupload', 'fileadder'], function($, Backbone, Videos, errorTmpl) {
 
   /**
    * Change the last part of the title of the page

@@ -20,6 +20,8 @@ You will need to set up some environment variables to make it work. (`export NAM
 
 `WIDEOR_VERSION` The version you will run (if this is different from 'development' it will use release js and css from the bucket specified `WIDEOR_AWS_STATICBUCKET` so be sure this release exists on the bucket). If not set it uses development.
 
+`WIDEOR_API_URL` This is to set the url of the API for the js (this is quite usefull to use a mock server for example http://wideorserver.apiary.io ;) ).
+
 ## Redis configuration
 
 `WIDEOR_REDIS_HOST` The host of the redis server (if not set it will use 127.0.0.1) (this is necessary on both server and worker)
@@ -58,3 +60,4 @@ To avoid the git repo to be to fat with a lot of test images all the test files 
 - Merge the validation functions on the client side and on the server side
 - Investigate cloudfront for serving js and css
 - See if we can remove the s3cmd from the release script and replace it with a custom node script (we already have knox-mpu as a dependency...)
+- Split site and API cause this is starting to be a real mess.

@@ -5,6 +5,10 @@
 var deps = ['jquery', 'Backbone', 'fileadder', 'hbs!template/videos/show',
             'hbs!template/videos/form'];
 define("videos", deps, function($, Backbone, FileAdder, showTmpl, formTmpl) {
+
+  // The uri where the api is TODO find a way to make this part of the configuration instead of being
+  // a js global variable
+  var uri = window.wideor ? window.wideor.apiUrl || '' : '';
   // A good function to check this is really a number
   var isNumber = function(number) {
     return typeof(+number) === "number" && isFinite(+number) && !isNaN(+number);
@@ -64,7 +68,7 @@ define("videos", deps, function($, Backbone, FileAdder, showTmpl, formTmpl) {
         files: []
       }
     },
-    "urlRoot": "/api/videos/",
+    "urlRoot": uri + "/api/videos/",
     validate: function(attributes, options) {
       var data = attributes.data;
       return validTopForm(data) || validFiles(data.files);

@@ -1,7 +1,8 @@
 // This file describes all the configuration variables just require it
 // when you need to access global variables
-module.exports = {
+var conf = {
   version: process.env.WIDEOR_VERSION || "development",
+  apiUrl: process.env.WIDEOR_API_URL || '',
   port: process.env.PORT || 3000,
   redis: {
     port: process.env.WIDEOR_REDIS_PORT || 6379,
@@ -16,3 +17,5 @@ module.exports = {
     bucket_image: process.env.WIDEOR_AWS_BUCKETIMAGE
   }
 };
+
+module.exports = conf;
