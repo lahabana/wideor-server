@@ -23,6 +23,7 @@
     "requirejs": "2.1.5"
   },
   "devDependencies": {
-    "mocha": "1.9.0"
+    "mocha": "1.9.0",
+    "redis-mock": "git://github.com/lahabana/redis-mock.git#3d0512c"
   }
 }
