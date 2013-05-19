@@ -1,36 +1,138 @@
-HOST: http://www.google.com/
+HOST: 
 
 --- wideor-server ---
-
 ---
-Welcome to the our sample API documentation. All comments can be written in (support [Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)
+An API to create videos from images
 ---
 
---
-Shopping Cart Resources
-The following is a section of resources related to the shopping cart
---
+-- Video resource --
 
-List products added into your shopping-cart. (comment block again in Markdown)
-GET /shopping-cart
+Shows the video if it exists
+GET /api/videos/{id}
 < 200
 < Content-Type: application/json
-{ "items": [
-{ "url": "/shopping-cart/1", "product":"2ZY48XPZ", "quantity": 1, "name": "New socks", "price": 1.25 }
-] }
+{
+"state": "waiting",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {},
+"id": 1368916010358
+}
 
-Save new products in your shopping cart
-POST /shopping-cart
+TEST: Asks for a video which is successfully created
+GET /api/videos/1234
+< 200
+< Content-Type: application/json
+{
+"state": "finished",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {
+    "url": "http://wideortest.s3.amazonaws.com/1368804559322.mpeg"
+},
+"id": 1234
+}
+
+TEST: Asks for a video which is waiting to be processed
+GET /api/videos/1235
+< 200
+< Content-Type: application/json
+{
+"state": "waiting",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {},
+"id": 1235
+}
+
+TEST: Asks for a video currently in progress
+GET /api/videos/1236
+< 200
+< Content-Type: application/json
+{
+"state": "running",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {},
+"id": 1236
+}
+
+TEST: Asks for a video which has failed
+GET /api/videos/1237
+< 200
+< Content-Type: application/json
+{
+"state": "failed",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {},
+"id": 1237
+}
+
+TEST: Asks for a non existing video
+GET /api/videos/9999
+< 404
+< Content-Type: application/json
+{ 
+"code": 404,
+"message": "Video not found"
+}
+
+Create a new video
+POST /api/videos
 > Content-Type: application/json
-{ "product":"1AB23ORM", "quantity": 2 }
+{
+"data":{
+    "duration":"1",
+    "format":"640x480",
+    "files":[{
+        "path":"http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format":"png"    
+    }]
+}}
 < 201
 < Content-Type: application/json
-{ "status": "created", "url": "/shopping-cart/2" }
+{
+"state": "waiting",
+"data": {
+    "files": [{
+        "path": "http://upload.wikimedia.org/wikipedia/en/thumb/2/27/Fez_cover.png/250px-Fez_cover.png",
+        "format": "png"
+    }],
+    "duration": "1",
+    "format": "640x480"
+},
+"result": {},
+"id": 1234
+}
 
--- Payment Resources --
-
-This resource allows you to submit payment information to process your *shopping cart* items
-POST /payment
-{ "cc": "12345678900", "cvc": "123", "expiry": "0112" }
-< 200
-{ "receipt": "/payment/receipt/1" }
