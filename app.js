@@ -19,7 +19,7 @@ var express = require('express')
 var redis = require('redis');
 var jobberTrack = require('jobber-track');
 var config = require('./config');
-
+var HttpError = require('http-error').HttpError;
 
 var app = express();
 
@@ -60,26 +60,43 @@ app.configure(function(){
     app.use(require('less-middleware')({ src: __dirname + '/public' }));
     app.use(express.static(path.join(__dirname, 'public')));
     app.use(app.router);
-    app.use(express.errorHandler());
   } else {
     app.set('view cache', true);
     app.use(app.router);
-    app.use(function(err, req, res, next){
-      console.error(err.stack);
-      res.render('500', {title: "Wideor.it | 500 Our Error"});
-    });
   }
+
+  // The error handler
+  app.use(function(err, req, res, next) {
+    var result;
+    if (err instanceof HttpError) {
+      result = err;
+    } else if (err instanceof Error) {
+      result = {
+        code: 500,
+        message: err.message ||"We don't know what happened here ;)"
+      };
+      console.error(err.stack);
+    } else {
+      console.error(err);
+      result = {
+        code: 500,
+        message: "We don't know what happened here ;)"
+      };
+    }
+
+    if (req.xhr) {
+      return res.jsonp(result.code, result);
+    }
+    res.status(result.code);
+    return res.render('error', {title: "Wideor.it | " + result.code + " Error ",
+                                message: result.message});
+  });
 });
 
-notFound = function(req, res) {
-  if (req.xhr) {
-    routes.videos.notFound(req, res);
-  } else {
-    res.status(404);
-    res.render('404', {title: "Wideor.it | 404 Not Foud"});
-  }
-};
-
+app.use(function(req, res, next) {
+  res.status(404);
+  res.render('404', {title: "Wideor.it | 404 Not Found"});
+});
 // Currently we have index and about which are real pages
 // The rest is just an empty page which backbone will render
 // This will have to change.
@@ -93,7 +110,6 @@ app.post('/images', routes.images.upload);
 // The routes to the API
 app.get('/api/videos/:id', routes.videos.show);
 app.post('/api/videos', routes.videos.create);
-app.all('/*', notFound);
 
 console.log("Starting version:", config.version);
 

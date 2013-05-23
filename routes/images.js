@@ -8,17 +8,12 @@ var MultiPartUpload = require('knox-mpu');
 var config = require('../config');
 var child = require('child_process');
 var request = require('request');
+var HttpError = require('http-error').HttpError;
 
 var S3 = knox.createClient({key: config.aws.key,
                                  secret: config.aws.secret,
                                  bucket: config.aws.bucket_image
                             });
-
-var createError = function(res, code, message) {
-  code = code || 500;
-  message = message || "Unexpected error";
-  return res.jsonp(code, {code:code, message:message});
-};
 
 // Launch convert and upload to S3
 var convertAndUpload = function(stream, options, cb) {
@@ -56,7 +51,7 @@ exports.upload = function(req, res, next) {
   var stream;
   var options = {size: size, bg: '#000000'};
   if (!size) {
-    createError(res, 400, "The size is not valid");
+    next(new HttpError("The size is not valid", 400));
   }
 
   // It's a form we will have to parse the file from the form
@@ -68,17 +63,13 @@ exports.upload = function(req, res, next) {
     options.format = 'image/' + req.body.format;
   }
   try {
-    convertAndUpload(stream,
-                    options,
-                    function(err, result) {
+    convertAndUpload(stream, options, function(err, result) {
                       if (err) {
-                        createError(res, 400, err);
-                      } else {
-                        res.jsonp(200, result);
+                        return next(new HttpError(err, 400));
                       }
+                      return res.jsonp(200, result);
                     });
   } catch (e) {
-    console.error(e);
-    return createError(res, 400, "Invalid file");
+    return next(new HttpError(e, 400));
   }
 };
