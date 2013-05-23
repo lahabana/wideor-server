@@ -118,6 +118,7 @@ define("fileadder", deps, function($, formFileTmpl) {
 
     that.curJob.data.submit()
     .done(function(data) {
+      that.curJob.obj.find('.file-format').val('jpeg');
       success(that.curJob.obj, data);
     }).fail(function(data) {
       fail(that.curJob.obj, data);
