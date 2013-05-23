@@ -19,7 +19,7 @@ var express = require('express')
 var redis = require('redis');
 var jobberTrack = require('jobber-track');
 var config = require('./config');
-var HttpError = require('http-error').HttpError;
+var middlewares = require('./middlewares');
 
 var app = express();
 
@@ -64,34 +64,10 @@ app.configure(function(){
     app.set('view cache', true);
     app.use(app.router);
   }
-
-  // The error handler
-  app.use(function(err, req, res, next) {
-    var result;
-    if (err instanceof HttpError) { // This error has a nice http code etc
-      result = err;
-    } else { //This is an error not really well handled we change it to a 500
-      result = {
-        code: 500,
-        message: err.message || "We don't know what happened here ;)"
-      };
-      console.error(err.stack || err);
-    }
-
-    // Depending of the type of request we return the same
-    if (req.xhr) {
-      return res.jsonp(result.code, result);
-    }
-    res.status(result.code);
-    return res.render('error', {title: "Wideor.it | " + result.code + " Error ",
-                                message: result.message});
-  });
+  app.use(middlewares.errorHandler);
+  app.use(middlewares.notFound);
 });
 
-app.use(function(req, res, next) {
-  res.status(404);
-  res.render('404', {title: "Wideor.it | 404 Not Found"});
-});
 // Currently we have index and about which are real pages
 // The rest is just an empty page which backbone will render
 // This will have to change.
