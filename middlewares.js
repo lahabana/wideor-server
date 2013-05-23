@@ -12,7 +12,7 @@ exports.errorHandler = function(err, req, res, next) {
     console.error(err.stack || err);
   }
 
-  // Depending of the type of request we return the same
+  // Depending on the type of request we return the same
   if (req.xhr) {
     return res.jsonp(result.code, result);
   }
@@ -21,7 +21,7 @@ exports.errorHandler = function(err, req, res, next) {
                               message: result.message});
 };
 
-exports.notFound = function(req, res, next) {
+exports.notFound = function(req, res) {
   res.status(404);
   res.render('404', {title: "Wideor.it | 404 Not Found"});
 };
@@ -29,18 +29,16 @@ exports.notFound = function(req, res, next) {
 exports.jadeVariables = function(config) {
   return function(req, res, next) {
     res.locals.app = {
-      version: config.version
+      version: config.version,
+      api_url : config.apiUrl
     };
-    // In development we use the local js and style
-    if (config.version === 'development') {
+    if (config.version === 'development') { //In dev we use the local js and style
       res.locals.app.js_url = "/javascripts/";
       res.locals.app.css_url = "/stylesheets/";
-    // In prod we use the cloudfront files of the runned version
-    } else {
+    } else { //In prod we use the cloudfront files of the runned version
       res.locals.app.js_url = "//" + config.aws.cloudfront + '/' + config.version;
       res.locals.app.css_url = res.locals.app.js_url;
     }
-    res.locals.app.api_url = config.apiUrl;
     next();
   };
 };
