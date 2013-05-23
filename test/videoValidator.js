@@ -148,7 +148,7 @@ describe('Checking validators.files' , function() {
 });
 
 describe('Checking parseAndValidate' , function() {
-  it('check with everything to default', function() {
+  it('with everything to default', function() {
     var res = validator.parseAndValidate({"files": [{path:"http://google.com", format: "jpeg"},
                                             {path: "http://yahoo.com?ijigr=2", format: "jpeg"}]});
     assert.deepEqual(res, {"duration": 1, "format": "640x480",
@@ -156,7 +156,7 @@ describe('Checking parseAndValidate' , function() {
                                     {path: "http://yahoo.com?ijigr=2", format: "jpeg"}]})
   });
 
-  it('check with everything specified', function() {
+  it('with everything specified', function() {
     var res = validator.parseAndValidate({"duration": 5, "format": "42x43",
                                           "files": [{path:"http://google.com", format: "jpeg"},
                                             {path: "http://yahoo.com?ijigr=2", format: "jpeg"}]});
@@ -165,14 +165,11 @@ describe('Checking parseAndValidate' , function() {
                                     {path: "http://yahoo.com?ijigr=2", format: "jpeg"}]})
   });
 
-  it("checks it returns false when there is an error", function() {
-    assert.ok(!validator.parseAndValidate({}));
-  });
-
-  it("checks the optional callback is fired on error", function(done) {
-    assert.ok(!validator.parseAndValidate({}, function(err) {
-      assert.ok(err);
+  it("throws on error", function(done) {
+    try {
+      assert.throws(validator.parseAndValidate({}), Error);
+    } catch(e) {
       done();
-    }));
+    } 
   });
 });

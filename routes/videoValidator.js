@@ -75,7 +75,7 @@ var validators = {
 exports._validators = validators;
 
 // Validate the data and create a valid json to be stored
-var parseAndValidate = function(body, cb) {
+var parseAndValidate = function(body) {
   var content = {};
   var err;
   // We launch each validators to check the entry is valid and append the result
@@ -83,10 +83,7 @@ var parseAndValidate = function(body, cb) {
     if (validators.hasOwnProperty(i)) {
       err = validators[i](body[i], content);
       if (err) {
-        if (cb) {
-          cb(err);
-        }
-        return false;
+        throw new Error(err);
       }
     }
   }
