@@ -8,26 +8,9 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 var assert = require('assert');
-var middlewares = require('../middlewares');
+var middlewares = require('../../middlewares');
 var HttpError = require('http-error').HttpError;
-
-/**
- * Mocks a http response in a really simple manner
- */
-var MockRes = function() {
-  this.locals = {};
-  this.status = function(code) {
-    this._status = code;
-  };
-  this.render = function(template, data) {
-    this._template = template;
-    this._data = data;
-  };
-  this.jsonp = function(code, data) {
-    this._status = code;
-    this._data = data;
-  };
-}
+var MockRes = require('../mocks/response');
 
 describe('Checking errorHandler' , function() {
   it('with text error non xhr', function() {
@@ -104,13 +87,13 @@ describe('Checking jadeVariables', function() {
       assert.strictEqual(res.locals.app.api_url, "whatever");
       assert.strictEqual(res.locals.app.version, "development");
       assert.strictEqual(res.locals.app.js_url, "/javascripts/");
-      assert.strictEqual(res.locals.app.css_url, "/stylesheets/");      
+      assert.strictEqual(res.locals.app.css_url, "/stylesheets/");
       done();
     });
   });
 
   it("should set versions, api_url and remote js and css paths in prod", function(done) {
-    var mw = middlewares.jadeVariables({version: "x.x.x", apiUrl: "http://api.com", 
+    var mw = middlewares.jadeVariables({version: "x.x.x", apiUrl: "http://api.com",
                                         aws: {cloudfront: "1234.cloudfront.com"}});
     assert.strictEqual(typeof(mw), "function");
     var res = new MockRes();
@@ -118,7 +101,7 @@ describe('Checking jadeVariables', function() {
       assert.strictEqual(res.locals.app.api_url, "http://api.com");
       assert.strictEqual(res.locals.app.version, "x.x.x");
       assert.strictEqual(res.locals.app.js_url, "//1234.cloudfront.com/x.x.x");
-      assert.strictEqual(res.locals.app.css_url, "//1234.cloudfront.com/x.x.x");      
+      assert.strictEqual(res.locals.app.css_url, "//1234.cloudfront.com/x.x.x");
       done();
     });
   });
