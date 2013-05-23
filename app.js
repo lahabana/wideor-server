@@ -34,28 +34,15 @@ app.configure(function(){
   app.set('port', config.port);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
+
+  // Set all the middlewares
   app.use(express.favicon(__dirname + "/public/favicon.ico", {maxAge: 2592000000}));
   app.use(express.bodyParser());
   app.use(express.logger('dev'));
   app.use(express.methodOverride());
   app.use(express.cookieParser('your secret here'));
   app.use(express.session());
-  app.use(function(req, res, next) {
-    res.locals.app = {
-      version: config.version
-    };
-    // In development we use the local js and style
-    if (config.version === 'development') {
-      res.locals.app.js_url = "/javascripts/";
-      res.locals.app.css_url = "/stylesheets/";
-    // In prod we use the cloudfront files of the runned version
-    } else {
-      res.locals.app.js_url = "//" + config.aws.cloudfront + '/' + config.version;
-      res.locals.app.css_url = res.locals.app.js_url;
-    }
-    res.locals.app.api_url = config.apiUrl;
-    next();
-  });
+  app.use(middlewares.jadeVariables(config));
   if (config.version === "development") {
     app.use(require('less-middleware')({ src: __dirname + '/public' }));
     app.use(express.static(path.join(__dirname, 'public')));
@@ -83,7 +70,6 @@ app.get('/api/videos/:id', routes.videos.show);
 app.post('/api/videos', routes.videos.create);
 
 console.log("Starting version:", config.version);
-
 // When the redis-client is ready we can really start the app
 app.get('redis-client').on('ready', function() {
   routes.videos.setQueue(app.get('queue'));

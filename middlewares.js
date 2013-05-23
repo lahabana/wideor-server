@@ -25,3 +25,22 @@ exports.notFound = function(req, res, next) {
   res.status(404);
   res.render('404', {title: "Wideor.it | 404 Not Found"});
 };
+
+exports.jadeVariables = function(config) {
+  return function(req, res, next) {
+    res.locals.app = {
+      version: config.version
+    };
+    // In development we use the local js and style
+    if (config.version === 'development') {
+      res.locals.app.js_url = "/javascripts/";
+      res.locals.app.css_url = "/stylesheets/";
+    // In prod we use the cloudfront files of the runned version
+    } else {
+      res.locals.app.js_url = "//" + config.aws.cloudfront + '/' + config.version;
+      res.locals.app.css_url = res.locals.app.js_url;
+    }
+    res.locals.app.api_url = config.apiUrl;
+    next();
+  };
+};
