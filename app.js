@@ -68,22 +68,17 @@ app.configure(function(){
   // The error handler
   app.use(function(err, req, res, next) {
     var result;
-    if (err instanceof HttpError) {
+    if (err instanceof HttpError) { // This error has a nice http code etc
       result = err;
-    } else if (err instanceof Error) {
+    } else { //This is an error not really well handled we change it to a 500
       result = {
         code: 500,
-        message: err.message ||"We don't know what happened here ;)"
+        message: err.message || "We don't know what happened here ;)"
       };
-      console.error(err.stack);
-    } else {
-      console.error(err);
-      result = {
-        code: 500,
-        message: "We don't know what happened here ;)"
-      };
+      console.error(err.stack || err);
     }
 
+    // Depending of the type of request we return the same
     if (req.xhr) {
       return res.jsonp(result.code, result);
     }
