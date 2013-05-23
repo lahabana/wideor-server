@@ -36,17 +36,17 @@ exports.show = function(req, res) {
 };
 
 exports.create = function(req, res) {
-  checkAndCreateContent(req.body.data || req.body, function(err, content) {
-    if (err) {
-      return createError(res, 400, err);
-    }
+  try {
+    var content = validator.parseAndValidate(req.body.data || req.body);
     queue.createAndPush(100000, content, function(err, resource) {
       if (err) {
         return createError(res, 500, err);
       }
       return createResult(res, 201, resource);
     });
-  });
+  } catch(e) {
+    return createError(res, 400, e.message);
+  }
 };
 
 exports.notFound = function(req, res) {
