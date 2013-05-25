@@ -13,9 +13,13 @@ exports.setQueue = function(RedisQueue) {
   queue = RedisQueue;
 };
 
+exports.getQueue = function() {
+  return queue;
+};
+
 exports.show = function(req, res, next) {
   if (req.params.id) {
-    queue.handler.get(req.params.id, function(err, resource) {
+    return queue.handler.get(req.params.id, function(err, resource) {
       if (err) {
         return next(new HttpError(err, 500));
       }
@@ -24,7 +28,6 @@ exports.show = function(req, res, next) {
       }
       return createResult(res, 200, resource);
     });
-    return;
   }
   return next(new HttpError("An id is necessary to be sent", 400));
 };
