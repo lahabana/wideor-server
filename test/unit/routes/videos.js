@@ -8,19 +8,21 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 var assert = require('assert');
-var Queue = require('../../mocks/queue');
+var jobberTrack = require('../../mocks/jobberTrack');
 var videos = require('../../../routes/videos');
 var MockRes = require('../../mocks/response');
 var HttpError = require('http-error').HttpError;
 
-beforeEach(function() {
-  var q  = new Queue();
-  q.__addResources([
-    {id: 1, data: "data1"},
-    {id: 2, data: "data2"},
-    {id: 3, data: "data3"}
-  ]);
-  videos.setQueue(q);
+beforeEach(function(done) {
+  jobberTrack(undefined, undefined, function(err, q) {
+    q.__addResources([
+      {id: 1, data: "data1"},
+      {id: 2, data: "data2"},
+      {id: 3, data: "data3"}
+    ]);
+    videos.setTracker(q);
+    done();
+  });
 });
 
 describe('Checking show()' , function() {
@@ -46,7 +48,7 @@ describe('Checking show()' , function() {
 
   it('with forcing an internal error', function(done) {
     var res = new MockRes();
-    videos.getQueue().makeFail = true;
+    videos.getTracker().makeFail = true;
     videos.show({ xhr: true, params: {id: 1}}, res, function(err) {
       assert.ok(err instanceof HttpError);
       assert.strictEqual(err.code, 500);
@@ -57,7 +59,7 @@ describe('Checking show()' , function() {
 
   it('without id param', function(done) {
     var res = new MockRes();
-    videos.getQueue().makeFail = true;
+    videos.getTracker().makeFail = true;
     videos.show({ xhr: true, params: {}}, res, function(err) {
       assert.ok(err instanceof HttpError);
       assert.strictEqual(err.code, 400);
@@ -70,29 +72,23 @@ describe('Checking show()' , function() {
 describe('Checking create()' , function() {
   it('with a correct content and req.body', function() {
     var res = new MockRes();
-    videos.create({ xhr: true, body: {files: [{path: "http://google.com", format: "jpeg"}]}}, 
+    videos.create({ xhr: true, body: {files: [{path: "http://google.com", format: "jpeg"}]}},
                   res, function(err) {
       //check this is never triggered
       assert.ok(false);
     });
     assert.strictEqual(res._status, 201);
-    assert.deepEqual(res._data.data,
-                    {files: [{format: "jpeg", path: "http://google.com"}],
-                      "format":"640x480","duration":1});
     assert.ok(res._data.id);
   });
 
   it('with a correct content and req.body.data', function() {
     var res = new MockRes();
-    videos.create({ xhr: true, body: {data: {files: [{path: "http://google.com", format: "jpeg"}]}}}, 
+    videos.create({ xhr: true, body: {data: {files: [{path: "http://google.com", format: "jpeg"}]}}},
                     res, function(err) {
       //check this is never triggered
       assert.ok(false);
     });
     assert.strictEqual(res._status, 201);
-    assert.deepEqual(res._data.data,
-                    {files: [{format: "jpeg", path: "http://google.com"}],
-                      "format":"640x480","duration":1});
     assert.ok(res._data.id);
   });
 
@@ -107,8 +103,8 @@ describe('Checking create()' , function() {
 
   it('with forcing an error', function(done) {
     var res = new MockRes();
-    videos.getQueue().makeFail = true;
-    videos.create({ xhr: true, body: {data: {files: [{format: "jpeg", path: "http://google.com"}]}}}, 
+    videos.getTracker().makeFail = true;
+    videos.create({ xhr: true, body: {data: {files: [{format: "jpeg", path: "http://google.com"}]}}},
                     res, function(err) {
       assert.ok(err instanceof HttpError);
       assert.strictEqual(err.code, 500);

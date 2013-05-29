@@ -7,7 +7,7 @@ var conf = {
   redis: {
     port: process.env.WIDEOR_REDIS_PORT || 6379,
     host: process.env.WIDEOR_REDIS_HOST || "127.0.0.1",
-    queue_name: process.env.WIDEOR_QUEUE_NAME
+    prefix: process.env.WIDEOR_REDIS_PREFIX || "wideor"
   },
   aws: {
     cloudfront: process.env.WIDEOR_AWS_CLOUDFRONT_URL,

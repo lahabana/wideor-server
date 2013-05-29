@@ -65,7 +65,7 @@ exports.upload = function(req, res, next) {
   try {
     convertAndUpload(stream, options, function(err, result) {
                       if (err) {
-                        return next(new HttpError(err, 400));
+                        return next(new HttpError(err, 500));
                       }
                       return res.jsonp(200, result);
                     });

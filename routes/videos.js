@@ -1,25 +1,23 @@
 var validator = require('./videoValidator');
 var HttpError = require('http-error').HttpError;
-var queue = null;
+var tracker = null;
 
 var createResult = function(res, code, resource) {
-  var data = resource.getValue();
-  data.id = resource.id;
-  return res.jsonp(code, data);
+  return res.jsonp(code, resource.serialize());
 };
 exports._createResult = createResult;
 
-exports.setQueue = function(RedisQueue) {
-  queue = RedisQueue;
+exports.setTracker = function(track) {
+  tracker = track;
 };
 
-exports.getQueue = function() {
-  return queue;
+exports.getTracker = function() {
+  return tracker;
 };
 
 exports.show = function(req, res, next) {
   if (req.params.id) {
-    return queue.handler.get(req.params.id, function(err, resource) {
+    return tracker.get(req.params.id, function(err, resource) {
       if (err) {
         return next(new HttpError(err, 500));
       }
@@ -35,11 +33,11 @@ exports.show = function(req, res, next) {
 exports.create = function(req, res, next) {
   try {
     var content = validator.parseAndValidate(req.body.data || req.body);
-    queue.createAndPush(100000, content, function(err, resource) {
+    tracker.createAndPush(content, function(err, id) {
       if (err) {
         return next(new HttpError(err, 500));
       }
-      return createResult(res, 201, resource);
+      return res.jsonp(201, {id:id});
     });
   } catch(e) {
     return next(new HttpError(e.message, 400));
