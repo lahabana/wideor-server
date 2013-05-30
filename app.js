@@ -69,14 +69,14 @@ app.post('/api/videos', routes.videos.create);
 console.log("Starting version:", config.version);
 // When the redis-client is ready we can really start the app
 app.get('redis-client').on('ready', function() {
-    // Access to our job tracker to add videos and retrieve their status
-    jobberTrack(app.get('redis-client'), config.redis.prefix, function(err, track) {
-      routes.videos.setTracker(track);
-      console.log("Connected to redis client");
-      http.createServer(app).listen(app.get('port'), function() {
-        console.log("Express server listening on port " + app.get('port'));
-      });
+  // Access to our job tracker to add videos and retrieve their status
+  jobberTrack(app.get('redis-client'), config.redis.prefix, function(err, track) {
+    routes.videos.setTracker(track);
+    console.log("Connected to redis client");
+    http.createServer(app).listen(app.get('port'), function() {
+      console.log("Express server listening on port " + app.get('port'));
     });
+  });
 });
 
 app.get('redis-client').on('error', function() {
