@@ -67,7 +67,7 @@ fi
 npm install
 npm test
 # We deal with the js files
-node_modules/requirejs/bin/r.js -o app.build.js
+node_modules/requirejs/bin/r.js -o scripts/app.build.js
 # Top of the pops would be to add gz compression
 node_modules/uglify-js/bin/uglifyjs build/main.js -c -m -o build/main.min.js
 node_modules/uglify-js/bin/uglifyjs build/require.js -c -m -o build/require.min.js

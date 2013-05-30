@@ -1,7 +1,7 @@
 ({
-    appDir: "public/javascripts",
+    appDir: "../public/javascripts",
     baseUrl: ".",
-    dir: "build",
+    dir: "../build",
     //Comment out the optimize line if you want
     //the code minified by UglifyJS.
     optimize: "none",
@@ -10,5 +10,5 @@
             name: "main"
         }
     ],
-    mainConfigFile: 'public/javascripts/main.js'
+    mainConfigFile: '../public/javascripts/main.js'
 })
